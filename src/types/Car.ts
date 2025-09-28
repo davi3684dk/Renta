@@ -14,6 +14,10 @@ export type Car = {
   seats: number;
 };
 
+export const carTypeOptions: Car['carType'][] = ["Micro Car", "Medium", "SUV", "Mini Bus", "Truck", "Van"];
+export const fuelTypeOptions: Car['fuelType'][] = ["Electric", "Petrol", "Diesel", "Hybrid"];
+export const transmissionOptions: Car['transmission'][] = ["Automatic", "Manual"];
+
 export type CarOwner = {
   id: number;
   name: string;
