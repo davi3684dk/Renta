@@ -32,12 +32,13 @@ export default function HomeScreen() {
     mode: "date" | "time";
   }>({ type: null, mode: "date" });
 
-  const openPicker = (type: "pickup" | "dropoff") => {
-    setShowPicker({ type, mode: "date" });
+  const openPicker = (type: "pickup" | "dropoff", mode: "date" | "time") => {
+    setShowPicker({ type, mode });
   };
 
   const onChange = (e: DateTimePickerEvent, selectedDate?: Date) => {
-    if (!selectedDate) {
+
+    if (!selectedDate || e.type === 'dismissed') {
       setShowPicker({ type: null, mode: "date" });
       return;
     }
@@ -113,13 +114,13 @@ export default function HomeScreen() {
         <View style={styles.row}>
           <TouchableOpacity
             style={styles.chip}
-            onPress={() => openPicker("pickup")}
+            onPress={() => openPicker("pickup", "date")}
           >
             <Text>{formatDate(pickUpDate)}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.chip}
-            onPress={() => openPicker("pickup")}
+            onPress={() => openPicker("pickup", "time")}
           >
             <Text>{formatTime(pickUpDate)}</Text>
           </TouchableOpacity>
@@ -129,13 +130,13 @@ export default function HomeScreen() {
         <View style={styles.row}>
           <TouchableOpacity
             style={styles.chip}
-            onPress={() => openPicker("dropoff")}
+            onPress={() => openPicker("dropoff", "date")}
           >
             <Text>{formatDate(dropOffDate)}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.chip}
-            onPress={() => openPicker("dropoff")}
+            onPress={() => openPicker("dropoff", "time")}
           >
             <Text>{formatTime(dropOffDate)}</Text>
           </TouchableOpacity>
@@ -145,8 +146,11 @@ export default function HomeScreen() {
           <DateTimePicker
             value={showPicker.type === "pickup" ? pickUpDate : dropOffDate}
             mode={showPicker.mode}
-            display="default"
+            display={showPicker.mode === 'date' ? 'default' : 'spinner'}
+            minimumDate={new Date()}
             onChange={onChange}
+            is24Hour
+            
           />
         )}
 
