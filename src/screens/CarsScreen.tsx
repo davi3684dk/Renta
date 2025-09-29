@@ -3,129 +3,11 @@ import { Car, carTypeOptions, fuelTypeOptions, transmissionOptions } from "../ty
 import CarCard from "../components/CarCard";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MultiSelectChips from "../components/MultiSelectChips";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-const dummyCars: Car[] = [
-  {
-    id: 1,
-    make: "Toyota",
-    model: "Corolla",
-    year: 2020,
-    pricePerKm: 20,
-    location: "5000 Odense C",
-    imageUrl: "https://gomore.imgix.net/uploads/car_picture/image/605580/car_a117386e-a1cb-4f07-b39e-a64facffd724.jpg?w=768&h=511&fit=crop&auto=format%2Ccompress&dpr=1",
-    owner: {
-      id: 1,
-      name: "John Doe",
-      avatarUrl: "https://cdn-icons-png.freepik.com/512/6858/6858504.png",
-      rating: 4.5,
-      numberOfReviews: 10,
-    },
-    carType: "Medium",
-    fuelType: "Petrol",
-    transmission: "Automatic",
-    seats: 5,
-  },
-  {
-    id: 2,
-    make: "Toyota",
-    model: "Yaris",
-    year: 2012,
-    pricePerKm: 5,
-    location: "5000 Odense C",
-    imageUrl: "https://gomore.imgix.net/uploads/car_picture/image/681176/car_f852641f-82c7-473a-8a7f-fe66116d1030.jpg?w=768&h=511&fit=crop&auto=format%2Ccompress&dpr=1",
-    owner: {
-      id: 2,
-      name: "Jane Smith",
-      avatarUrl: "https://cdn-icons-png.freepik.com/512/6858/6858504.png",
-      rating: 4.7,
-      numberOfReviews: 17,
-    },
-    carType: "Micro Car",
-    fuelType: "Petrol",
-    transmission: "Manual",
-    seats: 5,
-  },
-  {
-    id: 3,
-    make: "Tesla",
-    model: "Model 3",
-    year: 2019,
-    pricePerKm: 8,
-    location: "5000 Odense C",
-    imageUrl: "https://gomore.imgix.net/uploads/car_picture/image/1505746/car_1757328249.jpg?w=768&h=511&fit=crop&auto=format%2Ccompress&dpr=1",
-    owner: {
-      id: 3,
-      name: "Robert Brown",
-      avatarUrl: "https://cdn-icons-png.freepik.com/512/6858/6858504.png",
-      rating: 4.1,
-      numberOfReviews: 25,
-    },
-    carType: "Medium",
-    fuelType: "Electric",
-    transmission: "Automatic",
-    seats: 5,
-  },
-  {
-    id: 4,
-    make: "Renault",
-    model: "Clio",
-    year: 2018,
-    pricePerKm: 6,
-    location: "5000 Odense C",
-    imageUrl: "https://gomore.imgix.net/uploads/car_picture/image/682830/car_1670596956.jpg?w=768&h=511&fit=crop&auto=format%2Ccompress&dpr=1",
-    owner: {
-      id: 4,
-      name: "Sarah Johnson",
-      avatarUrl: "https://cdn-icons-png.freepik.com/512/6858/6858504.png",
-      rating: 5.0,
-      numberOfReviews: 2,
-    },
-    carType: "Medium",
-    fuelType: "Petrol",
-    transmission: "Manual",
-    seats: 5,
-  }
-]
-
-function getFilterIcon(filter: string) {
-  switch (filter) {
-    case 'Price':
-      return 
-    case 'Car type':
-      return 
-    case 'Distance':
-      return 
-    case 'Gear':
-      return 
-    case 'Seats':
-      return 
-    case 'Brand':
-      return 
-    case 'Rating':
-      return ;
-    case 'Fuel':
-      return ;
-    default:
-      return <FontAwesome5 name='filter' size={24} color="black" />;
-  }
-}
-
-function getSortIcon(filter: string) {
-  switch (filter) {
-    case 'Cheapest':
-      return <FontAwesome5 name='dollar-sign' size={24} color="black" />;
-    case 'Closest':
-      return <FontAwesome5 name='map-marker-alt' size={24} color="black" />;
-    case 'Rating':
-      return <FontAwesome5 name='star' size={24} color="black" />;
-    default:
-      return <FontAwesome5 name='filter' size={24} color="black" />;
-  }
-}
-
+import RadioGroup from 'react-native-radio-buttons-group';
+import dummyCars from "../dummy-data";
 
 export default function CarsScreen() {
     const navigation = useNavigation();
@@ -135,6 +17,7 @@ export default function CarsScreen() {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [editingFilter, setEditingFilter] = useState<string | null>(null);
+    const [sorting, setSorting] = useState<'cheapest' | 'closest' | 'rating' | undefined>();
 
     const [filters, setFilters] = useState<{
       price?: {min: string, max: string},
@@ -143,9 +26,14 @@ export default function CarsScreen() {
       distance?: number,
       fuel?: Car['fuelType'][],
       seats?: boolean,
-      brand?: string,
+      brand?: string[],
       rating?: number
-    }>({price: {min: '0', max: '100'}});
+    }>({});
+
+    //Apply sorting after the state has been applied
+    useEffect(() => {
+      applySorting([...cars]);
+    }, [sorting]);
 
     const updateFilter = (type: string, value: any) => {
       setFilters(prev => ({...prev, [type]: value}));
@@ -176,9 +64,39 @@ export default function CarsScreen() {
         filteredCars = filteredCars.filter(car => filters.fuel?.includes(car.fuelType));
       }
 
-      setCars(filteredCars);
+      if (filters.brand) {
+        filteredCars = filteredCars.filter(car => filters.brand?.includes(car.make));
+      }
+
+      if (filters.seats) {
+        filteredCars = filteredCars.filter(car => car.seats > 5);
+      }
+
+      if (filters.rating) {
+        filteredCars = filteredCars.filter(car => car.owner.rating >= (filters.rating ?? 0))
+      }
+
+      applySorting(filteredCars);
+
       setModalVisible(false);
     };
+
+    function applySorting(cars: Car[]) {
+      if (sorting) {
+        switch (sorting) {
+          case 'cheapest':
+            cars.sort((a,b) => a.pricePerKm - b.pricePerKm);
+            break;
+          case 'closest':
+            break;
+          case 'rating':
+            cars.sort((a,b) => b.owner.rating - a.owner.rating);
+            break;
+        }
+      }
+
+      setCars(cars);
+    }
 
     const styles = StyleSheet.create({
       container: {
@@ -305,21 +223,29 @@ export default function CarsScreen() {
           </ScrollView>
 
           <Text>Sort by</Text>
-          <FlatList
-            horizontal
-            data={['Cheapest', 'Closest', 'Rating']}
-            keyExtractor={(item) => item}
-            contentContainerStyle={styles.filterContainer}
-            renderItem={({ item }) => (
-              <TouchableOpacity>
-                <View style={styles.chip}>
-                  {getSortIcon(item)}
-                  <Text>{item}</Text>
-                </View>
-              </TouchableOpacity>
-            )}>
-
-          </FlatList>
+          <ScrollView horizontal contentContainerStyle={styles.filterContainer}>
+            <TouchableOpacity
+              onPress={() => setSorting('cheapest')}>
+              <View style={getChipStyle(sorting === 'cheapest')}>
+                <FontAwesome5 name='dollar-sign' size={24} color="black" />
+                <Text>Cheapest</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setSorting('closest')}>
+              <View style={getChipStyle(sorting === 'closest')}>
+                <FontAwesome5 name='map-marker-alt' size={24} color="black" />
+                <Text>Closest</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setSorting('rating')}>
+              <View style={getChipStyle(sorting === 'rating')}>
+                <FontAwesome5 name='star' size={24} color="black" />
+                <Text>Rating</Text>
+              </View>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
         <FlatList
             style={styles.carList}
@@ -349,7 +275,7 @@ export default function CarsScreen() {
                   <TextInput 
                     style={styles.textInput} 
                     inputMode="numeric" 
-                    value={filters.price?.min} 
+                    value={filters.price?.min ?? '0'} 
                     onChangeText={text => updateFilter("price", {min: text, max: filters.price?.max})}/>
                 </View>
                 <View>
@@ -357,7 +283,7 @@ export default function CarsScreen() {
                   <TextInput 
                     style={styles.textInput} 
                     inputMode="numeric" 
-                    value={filters.price?.max} 
+                    value={filters.price?.max ?? '100'} 
                     onChangeText={text => updateFilter("price", {min: filters.price?.min, max: text})}/>
                 </View>
               </>
@@ -414,6 +340,33 @@ export default function CarsScreen() {
                     onValueChange={(val) => updateFilter("seats", val)}/>
                 </View>
               </> 
+              )}
+              {editingFilter === "Brand" && (
+                <>
+                  <Text style={{fontSize: 24}}>Brand</Text>
+                  <MultiSelectChips
+                    options={[...new Set(dummyCars.map(car => car.make))]}
+                    selected={filters.brand ?? []}
+                    onChange={(arr: any) => updateFilter("brand", arr)}
+                    anyText="Any"
+                  />
+                </>
+              )}
+              {editingFilter === "Rating" && (
+                <View>
+                  <Text style={{fontSize: 24}}>Minumum Rating</Text>
+                  <RadioGroup
+                    radioButtons={[
+                      {id: '4', label: '★★★★☆'},
+                      {id: '3', label: '★★★☆☆'}, 
+                      {id: '2', label: '★★☆☆☆'},
+                      {id: '1', label: '★☆☆☆☆'}]}
+                    onPress={id => updateFilter("rating", id)}
+                    selectedId={filters.rating?.toString()}
+                  >
+
+                  </RadioGroup>
+                </View>
               )}
               <TouchableOpacity
                 style={{marginTop: 10, backgroundColor: "#1fb28a", padding: 10, borderRadius: 10}}
