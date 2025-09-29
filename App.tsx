@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './src/screens/HomeScreen';
 import CarsScreen from './src/screens/CarsScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 const Stack = createStackNavigator();
 
@@ -15,6 +16,7 @@ export default function App() {
       <Stack.Navigator initialRouteName='home'>
         <Stack.Screen name='home' component={HomeScreen}/>
         <Stack.Screen name='cars' component={CarsScreen}/>
+        <Stack.Screen name='settings' component={SettingsScreen}/>
       </Stack.Navigator> 
     </NavigationContainer>
   );

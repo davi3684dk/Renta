@@ -11,6 +11,10 @@ export default function HomeScreen() {
                 title="Find Rental"
                 onPress={() => navigation.navigate('cars')}
             />
+            <Button
+                title="Settings"
+                onPress={() => navigation.navigate('settings')}
+            />
         </View>
     );
 }
