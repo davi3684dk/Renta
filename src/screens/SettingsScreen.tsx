@@ -1,21 +1,30 @@
 import { useNavigation } from "@react-navigation/native";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
 
 export default function SettingsScreen() {
     const navigation = useNavigation();
 
     return (
-        <View>
-            <Text>Setting</Text>
+        <View style={styles.container}>
+            <TouchableOpacity style={styles.button}>
+                <Text>Press Here</Text>
+            </TouchableOpacity>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-  container: {
+   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    justifyContent: 'flex-start',
+    padding: 10,
+  },
+  button: {
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#FFF',
+    borderColor: '#000000ff',
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 5
   }
 });
