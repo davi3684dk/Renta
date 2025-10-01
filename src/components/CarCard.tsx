@@ -39,7 +39,7 @@ export default function CarCard({ car }: CarCardProps) {
                         <View style={styles.ownerName}>
                             <Image 
                                 source={{uri: car.owner.avatarUrl}}
-                                style={{ width: 24, height: 24 }}
+                                style={{ width: 24, height: 24, borderRadius: 12 }}
                                 resizeMode="cover"/>
                             <Text>{car.owner.name}</Text>
                         </View>
