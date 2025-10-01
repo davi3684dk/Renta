@@ -10,6 +10,7 @@ import RadioGroup from 'react-native-radio-buttons-group';
 import dummyCars from "../dummy-data";
 import { CarServiceContext } from "../services/CarServiceContext";
 import { CarFilter, CarSort } from "../types/CarService";
+import LocationAndTimeComponent from "../components/LocationAndTimePicker";
 
 export default function CarsScreen({route}: any) {
     const carService = useContext(CarServiceContext);
@@ -23,9 +24,9 @@ export default function CarsScreen({route}: any) {
     const [editingFilter, setEditingFilter] = useState<string | null>(null);
     const [sorting, setSorting] = useState<CarSort>();
 
-    const { fromDate, toDate } = route.params;
-
-    const [filters, setFilters] = useState<CarFilter>({fromDate: fromDate, toDate: toDate});
+    const { fromDate, toDate, location } = route.params;
+ 
+    const [filters, setFilters] = useState<CarFilter>({fromDate: fromDate, toDate: toDate, location: location});
 
     //Get cars from service after changes to filter
     useEffect(() => {
@@ -102,6 +103,18 @@ export default function CarsScreen({route}: any) {
         borderRadius: 10, 
         borderColor: "lightgrey", 
         borderWidth: 1
+      },
+      locationContainer: {
+        backgroundColor: "lightgrey",
+        borderRadius: 10,
+        padding: 10
+      },
+      dateText: {
+        color: "grey"
+      },
+      locationText: {
+        fontSize: 16,
+        fontWeight: "bold"
       }
     });
 
@@ -112,6 +125,12 @@ export default function CarsScreen({route}: any) {
     return (
       <View style={styles.container}>
         <View style={styles.searchContainer}>
+          <TouchableOpacity 
+            style={styles.locationContainer}
+            onPress={() => {setEditingFilter("Location"); setModalVisible(true)}}>
+            <Text style={styles.locationText}>{filters.location}</Text>
+            <Text style={styles.dateText}>{(filters.fromDate as Date).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short"})} - {(filters.toDate as Date).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short"})}</Text>
+          </TouchableOpacity>
           <Text>Filter by</Text>
           <ScrollView horizontal contentContainerStyle={styles.filterContainer}>
             <TouchableOpacity onPress={() => {setModalVisible(true); setEditingFilter('Price')}}>
@@ -309,6 +328,18 @@ export default function CarsScreen({route}: any) {
 
                   </RadioGroup>
                 </View>
+              )}
+              {editingFilter === "Location" && (
+                <LocationAndTimeComponent
+                  pickupDate={filters.fromDate}
+                  dropOffDate={filters.toDate}
+                  location={filters.location}
+                  onDateChange={(pickupDate: Date, dropoffDate: Date) => {
+                    updateFilter("fromDate", pickupDate);
+                    updateFilter("toDate", dropoffDate);
+                  }}
+                  onLocationChange={(location: string) => updateFilter("location", location)}
+                />
               )}
             </TouchableOpacity>
           </TouchableOpacity>
