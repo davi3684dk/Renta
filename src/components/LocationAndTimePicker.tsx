@@ -26,14 +26,14 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
   }, [location])
 
   const formatDate = (date: Date) =>
-    date.toLocaleDateString("da-DK", {
+    date.toLocaleDateString("en-GB", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
 
   const formatTime = (date: Date) =>
-    date.toLocaleTimeString("da-DK", { hour: "numeric", minute: "2-digit" });
+    date.toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
 
   const [showPicker, setShowPicker] = useState<{
     type: "pickup" | "dropoff" | null;
