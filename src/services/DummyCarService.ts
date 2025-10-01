@@ -5,6 +5,7 @@ import CarService, { CarFilter, CarSort } from "../types/CarService";
 export default class DummyCarService implements CarService {
     getCars(filter?: CarFilter, sort?: CarSort): Car[] {
         let filteredCars = [...dummyCars];
+        filteredCars = filteredCars.filter(car => car.available);
 
         if (filter) {
             filteredCars = this.filterCars(filteredCars, filter);
@@ -34,6 +35,10 @@ export default class DummyCarService implements CarService {
 
 
     private filterCars(filteredCars: Car[], filter: CarFilter): Car[] {
+        if (filter.fromDate !== undefined && filter.toDate) {
+            filteredCars = filteredCars.filter(car => car.bookings.find(b => (filter.fromDate! < b.to && b.from < filter.toDate!)) === undefined)
+        }
+
         if (filter.priceMin !== undefined) {
             filteredCars = filteredCars.filter(car => car.pricePerKm >= filter.priceMin!);
         }

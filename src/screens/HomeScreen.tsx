@@ -156,7 +156,10 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.findBtn}
-          onPress={() => navigation.navigate("cars")}
+          onPress={() => navigation.navigate("cars", {
+            fromDate: pickUpDate,
+            toDate: dropOffDate
+          })}
         >
           <Text style={styles.findBtnText}>Find Rental</Text>
         </TouchableOpacity>
@@ -166,7 +169,10 @@ export default function HomeScreen() {
         <Text style={{ marginBottom: 8 }}>Rent your car</Text>
         <TouchableOpacity
           style={styles.circleBtn}
-          onPress={() => navigation.navigate("cars")}
+          onPress={() => navigation.navigate("cars", {
+            fromDate: pickUpDate,
+            toDate: dropOffDate
+          })}
         >
           <Text style={{ color: "white", fontSize: 18 }}>{">"}</Text>
         </TouchableOpacity>

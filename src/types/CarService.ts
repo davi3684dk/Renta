@@ -20,6 +20,8 @@ export type CarFilter = {
     location?: string;
     minRating?: number;
     distance?: number;
+    fromDate?: Date;
+    toDate?: Date;
 };
 
 export type CarSort = 'Cheapest' | 'Closest' | 'Rating'

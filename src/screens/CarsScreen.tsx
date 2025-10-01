@@ -11,7 +11,7 @@ import dummyCars from "../dummy-data";
 import { CarServiceContext } from "../services/CarServiceContext";
 import { CarFilter, CarSort } from "../types/CarService";
 
-export default function CarsScreen() {
+export default function CarsScreen({route}: any) {
     const carService = useContext(CarServiceContext);
 
     const navigation = useNavigation();
@@ -23,7 +23,9 @@ export default function CarsScreen() {
     const [editingFilter, setEditingFilter] = useState<string | null>(null);
     const [sorting, setSorting] = useState<CarSort>();
 
-    const [filters, setFilters] = useState<CarFilter>({});
+    const { fromDate, toDate } = route.params;
+
+    const [filters, setFilters] = useState<CarFilter>({fromDate: fromDate, toDate: toDate});
 
     //Get cars from service after changes to filter
     useEffect(() => {
