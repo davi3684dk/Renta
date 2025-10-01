@@ -85,7 +85,7 @@ export default function CarCard({ car }: CarCardProps) {
             </View>
 
             <View>
-                <Text>{car.pricePerKm} kr. / km</Text>
+                <Text style={styles.priceText}>{car.pricePerKm} kr. / km</Text>
             </View>
         </View>
     );
@@ -167,5 +167,10 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         borderColor: "lightgray",
         borderWidth: 1
+    },
+    priceText: {
+        paddingTop: 10,
+        fontSize: 16,
+        fontWeight: "bold"
     }
 });
