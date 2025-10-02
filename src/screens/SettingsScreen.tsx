@@ -2,25 +2,29 @@ import { useNavigation } from "@react-navigation/native";
 import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
 
 export default function SettingsScreen() {
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity 
-                style={styles.button}
-                onPress={() => navigation.navigate('permission')}>
-                <Text>Profile & Billing</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-                style={styles.button}
-                onPress={() => navigation.navigate('customization')}>
-                <Text>App Permissions</Text>
-            </TouchableOpacity>
+
             <TouchableOpacity 
                 style={styles.button}
                 onPress={() => navigation.navigate('profilebilling')}>
+                <Text>Profile & Billing</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+                style={styles.button}
+                onPress={() => navigation.navigate('permission')}>
+                <Text>App Permissions</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+                style={styles.button}
+                onPress={() => navigation.navigate('customization')}>
                 <Text>Sounds & Customization</Text>
             </TouchableOpacity>
+
         </View>
     );
 }
