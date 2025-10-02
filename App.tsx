@@ -8,7 +8,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import AppPermissions from './src/screens/AppPermissionsScreen';
 import Customization from './src/screens/CustomizationScreen';
 import ProfileBilling from './src/screens/ProfileBillingScreen';
-import { TouchableOpacity, Text } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
 
 
@@ -39,10 +39,22 @@ function MyStack() {
         name='cars' component={CarsScreen}
         options={{ headerTitle: "Find Cars" }}
         />
-      <Stack.Screen name='settings' component={SettingsScreen}/>
-      <Stack.Screen name='permission' component={AppPermissions}/>
-      <Stack.Screen name='customization' component={Customization}/>
-      <Stack.Screen name='profilebilling' component={ProfileBilling}/>
+      <Stack.Screen 
+        name='settings' component={SettingsScreen}
+        options={{ headerTitle: "Settings" }}
+        />
+      <Stack.Screen 
+        name='permission' component={AppPermissions}
+        options={{ headerTitle: "App Permissions"}}
+        />
+      <Stack.Screen 
+        name='customization' component={Customization}
+        options={{ headerTitle: "Sound & Customization"}}
+        />
+      <Stack.Screen 
+        name='profilebilling' component={ProfileBilling}
+        options={{ headerTitle: "Profile & Billing"}}
+        />
     </Stack.Navigator> 
   );
 }
