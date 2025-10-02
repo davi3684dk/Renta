@@ -11,8 +11,6 @@ export default class APICarService implements CarService {
         fuelType: JSON.stringify(filter?.fuelType),
         sort: sort}});
     
-    console.log(result);
-    
     return result.data;
   }
 }
