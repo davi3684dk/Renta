@@ -30,8 +30,10 @@ export default function CarsScreen({route}: any) {
 
     //Get cars from service after changes to filter
     useEffect(() => {
-      if (carService)
-        setCars(carService.getCars(filters, sorting));
+      if (carService) {
+        carService.getCars(filters, sorting)
+          .then((c) => setCars(c));
+      }
     }, [sorting, filters]);
 
     const updateFilter = (type: string, value: any) => {
