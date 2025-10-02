@@ -3,7 +3,7 @@ import { Car } from "../types/Car";
 import CarService, { CarFilter, CarSort } from "../types/CarService";
 
 export default class DummyCarService implements CarService {
-    getCars(filter?: CarFilter, sort?: CarSort): Car[] {
+    async getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]> {
         let filteredCars = [...dummyCars];
         filteredCars = filteredCars.filter(car => car.available);
 
