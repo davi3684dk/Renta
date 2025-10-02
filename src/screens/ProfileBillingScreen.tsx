@@ -26,18 +26,18 @@ export default function ProfileBilling() {
             <Text style={styles.headline}>Payment Info</Text>
 
             <TouchableOpacity 
-                style={styles.input}>  
-                <Text>Add Credit Card</Text>
+                style={styles.clicker}>  
+                <Text style={styles.clickerText}>Add Credit Card</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-                style={styles.input}>  
-                <Text>Add Mobile Pay</Text>
+                style={styles.clicker}>  
+                <Text style={styles.clickerText}>Add Mobile Pay</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
-                style={styles.input}>  
-                <Text>Add Paypal</Text>
+                style={styles.clicker}>  
+                <Text style={styles.clickerText}>Add Paypal</Text>
             </TouchableOpacity>
 
         </View>
@@ -46,12 +46,11 @@ export default function ProfileBilling() {
 
 const styles = StyleSheet.create({
    container: {
-    flex: 1,
+    display: 'flex',
     justifyContent: 'flex-start',
     padding: 10,
   },
   input: {
-    alignItems: 'flex-start',
     backgroundColor: '#FFF',
     borderColor: '#000000ff',
     borderWidth: 1,
@@ -62,6 +61,18 @@ const styles = StyleSheet.create({
   headline: {
     fontSize: 18,
     fontWeight: "bold",
-    paddingBottom: 10
+    margin: 10
+  },
+  clicker: {
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderColor: '#000000ff',
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 20,
+    margin: 10,
+  },
+  clickerText: {
+    fontWeight: 'bold'
   }
 });
