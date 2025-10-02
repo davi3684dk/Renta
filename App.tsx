@@ -4,6 +4,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import CarsScreen from './src/screens/CarsScreen';
 import { CarServiceContext } from './src/services/CarServiceContext';
 import DummyCarService from './src/services/DummyCarService';
+import APICarService from './src/services/APICarService';
 import SettingsScreen from './src/screens/SettingsScreen';
 import AppPermissions from './src/screens/AppPermissionsScreen';
 import Customization from './src/screens/CustomizationScreen';
@@ -61,7 +62,7 @@ function MyStack() {
 
 export default function App() {
   return (
-    <CarServiceContext.Provider value={new DummyCarService}>
+    <CarServiceContext.Provider value={new APICarService}>
       <NavigationContainer>
         <MyStack />
       </NavigationContainer>
