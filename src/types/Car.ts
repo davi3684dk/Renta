@@ -12,11 +12,11 @@ export type Car = {
   fuelType: "Electric" | "Petrol" | "Diesel" | "Hybrid";
   transmission: "Automatic" | "Manual";
   seats: number;
-};
 
-export const carTypeOptions: Car['carType'][] = ["Micro Car", "Medium", "SUV", "Mini Bus", "Truck", "Van"];
-export const fuelTypeOptions: Car['fuelType'][] = ["Electric", "Petrol", "Diesel", "Hybrid"];
-export const transmissionOptions: Car['transmission'][] = ["Automatic", "Manual"];
+  bookings: Booking[];
+
+  available: boolean; //Used by the owner to unlist the car without removing it from the app
+};
 
 export type CarOwner = {
   id: number;
@@ -25,3 +25,14 @@ export type CarOwner = {
   rating: number;
   numberOfReviews: number;
 };
+
+export type Booking = {
+  id: number;
+  from: Date;
+  to: Date;
+}
+
+
+export const carTypeOptions: Car['carType'][] = ["Micro Car", "Medium", "SUV", "Mini Bus", "Truck", "Van"];
+export const fuelTypeOptions: Car['fuelType'][] = ["Electric", "Petrol", "Diesel", "Hybrid"];
+export const transmissionOptions: Car['transmission'][] = ["Automatic", "Manual"];

@@ -7,156 +7,33 @@ import {
   StyleSheet,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import LocationAndTimeComponent from "../components/LocationAndTimePicker";
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
 
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState("Odense");
   const [pickUpDate, setPickUpDate] = useState(new Date());
   const [dropOffDate, setDropOffDate] = useState(new Date());
-
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  const formatTime = (date: Date) =>
-    date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-
-  const [showPicker, setShowPicker] = useState<{
-    type: "pickup" | "dropoff" | null;
-    mode: "date" | "time";
-  }>({ type: null, mode: "date" });
-
-  const openPicker = (type: "pickup" | "dropoff", mode: "date" | "time") => {
-    setShowPicker({ type, mode });
-  };
-
-  const onChange = (e: DateTimePickerEvent, selectedDate?: Date) => {
-
-    if (!selectedDate || e.type === 'dismissed') {
-      setShowPicker({ type: null, mode: "date" });
-      return;
-    }
-
-    switch (showPicker.mode) {
-      case "date": {
-        switch (showPicker.type) {
-          case "pickup": {
-            const newDate = new Date(pickUpDate);
-            newDate.setFullYear(
-              selectedDate.getFullYear(),
-              selectedDate.getMonth(),
-              selectedDate.getDate()
-            );
-            setPickUpDate(newDate);
-            break;
-          }
-          case "dropoff": {
-            const newDate = new Date(dropOffDate);
-            newDate.setFullYear(
-              selectedDate.getFullYear(),
-              selectedDate.getMonth(),
-              selectedDate.getDate()
-            );
-            setDropOffDate(newDate);
-            break;
-          }
-        }
-        setShowPicker((prev) =>
-          prev.type ? { ...prev, mode: "time" } : { type: null, mode: "date" }
-        );
-        break;
-      }
-
-      case "time": {
-        switch (showPicker.type) {
-          case "pickup": {
-            const newDate = new Date(pickUpDate);
-            newDate.setHours(
-              selectedDate.getHours(),
-              selectedDate.getMinutes()
-            );
-            setPickUpDate(newDate);
-            break;
-          }
-          case "dropoff": {
-            const newDate = new Date(dropOffDate);
-            newDate.setHours(
-              selectedDate.getHours(),
-              selectedDate.getMinutes()
-            );
-            setDropOffDate(newDate);
-            break;
-          }
-        }
-        setShowPicker({ type: null, mode: "date" });
-        break;
-      }
-    }
-  };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <TextInput
-          style={styles.input}
-          placeholder="Location"
-          value={location}
-          onChangeText={setLocation}
+        <LocationAndTimeComponent
+          location={location}
+          onDateChange={(pickupDate: Date, dropOffDate: Date) => {
+            setPickUpDate(pickupDate);
+            setDropOffDate(dropOffDate);
+          }}
+          onLocationChange={setLocation}
         />
-
-        <Text style={styles.label}>Pick-up</Text>
-        <View style={styles.row}>
-          <TouchableOpacity
-            style={styles.chip}
-            onPress={() => openPicker("pickup", "date")}
-          >
-            <Text>{formatDate(pickUpDate)}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.chip}
-            onPress={() => openPicker("pickup", "time")}
-          >
-            <Text>{formatTime(pickUpDate)}</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.label}>Drop-off</Text>
-        <View style={styles.row}>
-          <TouchableOpacity
-            style={styles.chip}
-            onPress={() => openPicker("dropoff", "date")}
-          >
-            <Text>{formatDate(dropOffDate)}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.chip}
-            onPress={() => openPicker("dropoff", "time")}
-          >
-            <Text>{formatTime(dropOffDate)}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {showPicker.type && (
-          <DateTimePicker
-            value={showPicker.type === "pickup" ? pickUpDate : dropOffDate}
-            mode={showPicker.mode}
-            display={showPicker.mode === 'date' ? 'default' : 'spinner'}
-            minimumDate={new Date()}
-            onChange={onChange}
-            is24Hour
-            
-          />
-        )}
-
         <TouchableOpacity
           style={styles.findBtn}
-          onPress={() => navigation.navigate("cars")}
+          onPress={() => navigation.navigate("cars", {
+            fromDate: pickUpDate,
+            toDate: dropOffDate,
+            location: location
+          })}
         >
           <Text style={styles.findBtnText}>Find Rental</Text>
         </TouchableOpacity>
@@ -166,7 +43,10 @@ export default function HomeScreen() {
         <Text style={{ marginBottom: 8 }}>Rent your car</Text>
         <TouchableOpacity
           style={styles.circleBtn}
-          onPress={() => navigation.navigate("cars")}
+          onPress={() => navigation.navigate("cars", {
+            fromDate: pickUpDate,
+            toDate: dropOffDate
+          })}
         >
           <Text style={{ color: "white", fontSize: 18 }}>{">"}</Text>
         </TouchableOpacity>
@@ -187,21 +67,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 16,
-  },
-  label: { fontWeight: "bold", marginTop: 10, marginBottom: 6 },
-  dateBtn: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
-  },
   findBtn: {
     backgroundColor: "#8e44ad",
     padding: 14,
@@ -218,17 +83,5 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  chip: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    marginRight: 8,
-  },
+  }
 });

@@ -3,99 +3,42 @@ import { Car, carTypeOptions, fuelTypeOptions, transmissionOptions } from "../ty
 import CarCard from "../components/CarCard";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import MultiSelectChips from "../components/MultiSelectChips";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import RadioGroup from 'react-native-radio-buttons-group';
 import dummyCars from "../dummy-data";
+import { CarServiceContext } from "../services/CarServiceContext";
+import { CarFilter, CarSort } from "../types/CarService";
+import LocationAndTimeComponent from "../components/LocationAndTimePicker";
 
-export default function CarsScreen() {
+export default function CarsScreen({route}: any) {
+    const carService = useContext(CarServiceContext);
+
     const navigation = useNavigation();
     const insets = useSafeAreaInsets();
     
-    const [cars, setCars] = useState<Car[]>(dummyCars);
+    const [cars, setCars] = useState<Car[]>([]);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [editingFilter, setEditingFilter] = useState<string | null>(null);
-    const [sorting, setSorting] = useState<'cheapest' | 'closest' | 'rating' | undefined>();
+    const [sorting, setSorting] = useState<CarSort>();
 
-    const [filters, setFilters] = useState<{
-      price?: {min: string, max: string},
-      gear?: Car['transmission'],
-      carType?: Car['carType'][],
-      distance?: number,
-      fuel?: Car['fuelType'][],
-      seats?: boolean,
-      brand?: string[],
-      rating?: number
-    }>({});
+    const { fromDate, toDate, location } = route.params;
+ 
+    const [filters, setFilters] = useState<CarFilter>({fromDate: fromDate, toDate: toDate, location: location});
 
-    //Apply sorting after the state has been applied
+    //Get cars from service after changes to filter
     useEffect(() => {
-      applySorting([...cars]);
-    }, [sorting]);
+      if (carService)
+        setCars(carService.getCars(filters, sorting));
+    }, [sorting, filters]);
 
     const updateFilter = (type: string, value: any) => {
+      if (Array.isArray(value) && value.length === 0)
+        value = undefined;
+
       setFilters(prev => ({...prev, [type]: value}));
-    }
-
-    const applyFilters = async () => {
-      let filteredCars = dummyCars;
-
-      if (filters.price) {
-        const min = parseInt(filters.price.min) || 0;
-        const max = parseInt(filters.price.max) || Number.MAX_SAFE_INTEGER;
-        filteredCars = filteredCars.filter(car => car.pricePerKm >= min && car.pricePerKm <= max);
-      }
-
-      if (filters.gear) {
-        filteredCars = filteredCars.filter(car => car.transmission === filters.gear);
-      }
-
-      if (filters.carType) {
-        filteredCars = filteredCars.filter(car => filters.carType?.includes(car.carType));
-      }
-
-      if (filters.distance) {
-        // Needs implementation
-      }
-
-      if (filters.fuel) {
-        filteredCars = filteredCars.filter(car => filters.fuel?.includes(car.fuelType));
-      }
-
-      if (filters.brand) {
-        filteredCars = filteredCars.filter(car => filters.brand?.includes(car.make));
-      }
-
-      if (filters.seats) {
-        filteredCars = filteredCars.filter(car => car.seats > 5);
-      }
-
-      if (filters.rating) {
-        filteredCars = filteredCars.filter(car => car.owner.rating >= (filters.rating ?? 0))
-      }
-
-      applySorting(filteredCars);
-
-      setModalVisible(false);
-    };
-
-    function applySorting(cars: Car[]) {
-      if (sorting) {
-        switch (sorting) {
-          case 'cheapest':
-            cars.sort((a,b) => a.pricePerKm - b.pricePerKm);
-            break;
-          case 'closest':
-            break;
-          case 'rating':
-            cars.sort((a,b) => b.owner.rating - a.owner.rating);
-            break;
-        }
-      }
-
-      setCars(cars);
     }
 
     const styles = StyleSheet.create({
@@ -160,6 +103,18 @@ export default function CarsScreen() {
         borderRadius: 10, 
         borderColor: "lightgrey", 
         borderWidth: 1
+      },
+      locationContainer: {
+        backgroundColor: "lightgrey",
+        borderRadius: 10,
+        padding: 10
+      },
+      dateText: {
+        color: "grey"
+      },
+      locationText: {
+        fontSize: 16,
+        fontWeight: "bold"
       }
     });
 
@@ -170,10 +125,16 @@ export default function CarsScreen() {
     return (
       <View style={styles.container}>
         <View style={styles.searchContainer}>
+          <TouchableOpacity 
+            style={styles.locationContainer}
+            onPress={() => {setEditingFilter("Location"); setModalVisible(true)}}>
+            <Text style={styles.locationText}>{filters.location}</Text>
+            <Text style={styles.dateText}>{(filters.fromDate as Date).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short"})} - {(filters.toDate as Date).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short"})}</Text>
+          </TouchableOpacity>
           <Text>Filter by</Text>
           <ScrollView horizontal contentContainerStyle={styles.filterContainer}>
             <TouchableOpacity onPress={() => {setModalVisible(true); setEditingFilter('Price')}}>
-              <View style={getChipStyle(filters.price !== undefined)}>
+              <View style={getChipStyle(filters.priceMin !== undefined || filters.priceMax !== undefined)}>
                 <FontAwesome5 name='dollar-sign' size={24} color="black" />
                 <Text>Price</Text>
               </View>
@@ -191,13 +152,13 @@ export default function CarsScreen() {
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {setModalVisible(true); setEditingFilter('Gear')}}>
-              <View style={getChipStyle(filters.gear !== undefined)}>
+              <View style={getChipStyle(filters.transmission !== undefined)}>
                 <MaterialCommunityIcons name="car-shift-pattern" size={24} color="black" />
                 <Text>Gear</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {setModalVisible(true); setEditingFilter('Seats')}}>
-              <View style={getChipStyle(filters.seats !== undefined)}>
+              <View style={getChipStyle(filters.moreThan5Seats !== undefined)}>
                 <MaterialCommunityIcons name="car-seat" size={24} color="black" />
                 <Text>Seats</Text>
               </View>
@@ -209,13 +170,13 @@ export default function CarsScreen() {
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {setModalVisible(true); setEditingFilter('Rating')}}>
-              <View style={getChipStyle(filters.rating !== undefined)}>
+              <View style={getChipStyle(filters.minRating !== undefined)}>
                 <FontAwesome5 name='star' size={24} color="black" />
                 <Text>Rating</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {setModalVisible(true); setEditingFilter('Fuel')}}>
-              <View style={getChipStyle(filters.fuel !== undefined)}>
+              <View style={getChipStyle(filters.fuelType !== undefined)}>
                 <FontAwesome5 name='gas-pump' size={24} color="black" />
                 <Text>Fuel</Text>
               </View>
@@ -225,22 +186,22 @@ export default function CarsScreen() {
           <Text>Sort by</Text>
           <ScrollView horizontal contentContainerStyle={styles.filterContainer}>
             <TouchableOpacity
-              onPress={() => setSorting('cheapest')}>
-              <View style={getChipStyle(sorting === 'cheapest')}>
+              onPress={() => setSorting('Cheapest')}>
+              <View style={getChipStyle(sorting === 'Cheapest')}>
                 <FontAwesome5 name='dollar-sign' size={24} color="black" />
                 <Text>Cheapest</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => setSorting('closest')}>
-              <View style={getChipStyle(sorting === 'closest')}>
+              onPress={() => setSorting('Closest')}>
+              <View style={getChipStyle(sorting === 'Closest')}>
                 <FontAwesome5 name='map-marker-alt' size={24} color="black" />
                 <Text>Closest</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => setSorting('rating')}>
-              <View style={getChipStyle(sorting === 'rating')}>
+              onPress={() => setSorting('Rating')}>
+              <View style={getChipStyle(sorting === 'Rating')}>
                 <FontAwesome5 name='star' size={24} color="black" />
                 <Text>Rating</Text>
               </View>
@@ -275,16 +236,16 @@ export default function CarsScreen() {
                   <TextInput 
                     style={styles.textInput} 
                     inputMode="numeric" 
-                    value={filters.price?.min ?? '0'} 
-                    onChangeText={text => updateFilter("price", {min: text, max: filters.price?.max})}/>
+                    value={filters.priceMin?.toString() ?? '0'} 
+                    onChangeText={text => updateFilter("priceMin", text)}/>
                 </View>
                 <View>
                   <Text>Max Price</Text>
                   <TextInput 
                     style={styles.textInput} 
                     inputMode="numeric" 
-                    value={filters.price?.max ?? '100'} 
-                    onChangeText={text => updateFilter("price", {min: filters.price?.min, max: text})}/>
+                    value={filters.priceMax?.toString() ?? '100'} 
+                    onChangeText={text => updateFilter("priceMax", text)}/>
                 </View>
               </>
               )}
@@ -293,8 +254,8 @@ export default function CarsScreen() {
                 <Text style={{fontSize: 24}}>Gear</Text>
                 <MultiSelectChips
                   options={transmissionOptions}
-                  selected={filters.gear}
-                  onChange={(arr: any) => updateFilter("gear", arr)}
+                  selected={filters.transmission}
+                  onChange={(arr: any) => updateFilter("transmission", arr)}
                 />
               </>
               )}
@@ -303,8 +264,8 @@ export default function CarsScreen() {
                 <Text style={{fontSize: 24}}>Fuel</Text>
                 <MultiSelectChips
                   options={fuelTypeOptions}
-                  selected={filters.fuel ?? []}
-                  onChange={(arr: any) => updateFilter("fuel", arr)}
+                  selected={filters.fuelType ?? []}
+                  onChange={(arr: any) => updateFilter("fuelType", arr)}
                 />
               </>
               )}
@@ -336,8 +297,8 @@ export default function CarsScreen() {
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                   <Text>Only show cars with more than 5 seats</Text>
                   <Switch
-                    value={filters.seats ?? false}
-                    onValueChange={(val) => updateFilter("seats", val)}/>
+                    value={filters.moreThan5Seats ?? false}
+                    onValueChange={(val) => updateFilter("moreThan5Seats", val)}/>
                 </View>
               </> 
               )}
@@ -361,19 +322,25 @@ export default function CarsScreen() {
                       {id: '3', label: '★★★☆☆'}, 
                       {id: '2', label: '★★☆☆☆'},
                       {id: '1', label: '★☆☆☆☆'}]}
-                    onPress={id => updateFilter("rating", id)}
-                    selectedId={filters.rating?.toString()}
+                    onPress={id => updateFilter("minRating", id)}
+                    selectedId={filters.minRating?.toString()}
                   >
 
                   </RadioGroup>
                 </View>
               )}
-              <TouchableOpacity
-                style={{marginTop: 10, backgroundColor: "#1fb28a", padding: 10, borderRadius: 10}}
-                onPress={applyFilters}>
-
-                <Text style={{color: "#fff", textAlign: "center"}}>Apply</Text>
-              </TouchableOpacity>
+              {editingFilter === "Location" && (
+                <LocationAndTimeComponent
+                  pickupDate={filters.fromDate}
+                  dropOffDate={filters.toDate}
+                  location={filters.location}
+                  onDateChange={(pickupDate: Date, dropoffDate: Date) => {
+                    updateFilter("fromDate", pickupDate);
+                    updateFilter("toDate", dropoffDate);
+                  }}
+                  onLocationChange={(location: string) => updateFilter("location", location)}
+                />
+              )}
             </TouchableOpacity>
           </TouchableOpacity>
         </Modal>
