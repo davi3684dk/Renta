@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Car } from "../types/Car";
+import { Booking, Car } from "../types/Car";
 import CarService, { CarFilter, CarSort, NewCarBody } from "../types/CarService";
 
 export default class APICarService implements CarService {
@@ -8,7 +8,8 @@ export default class APICarService implements CarService {
   }
 
   async addCar(car: NewCarBody): Promise<void> {
-    throw new Error("Method not implemented.");
+    await new Promise(res => setTimeout(res, 1000));
+    return
   }
 
   async getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]> {
@@ -19,6 +20,21 @@ export default class APICarService implements CarService {
         fuelType: JSON.stringify(filter?.fuelType),
         sort: sort}});
     
-    return result.data;
+    try {
+      result.data.forEach((data: any) => {
+        data.bookings = data.bookings.map(
+          (s: any): Booking => ({
+            id: s.id,
+            from: new Date(s.from),
+            to: new Date(s.to),
+          })
+        );
+      });
+  
+      return result.data;
+
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

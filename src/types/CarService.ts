@@ -24,6 +24,7 @@ export type NewCarBody = {
   fuelType: Car["fuelType"];
   seats: number;
   price: number;
+  image: string;
   ownerId: string;
 }
 

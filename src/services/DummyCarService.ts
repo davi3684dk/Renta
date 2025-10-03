@@ -13,7 +13,7 @@ export default class DummyCarService implements CarService {
 
     async getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]> {
         let filteredCars = [...dummyCars];
-        filteredCars = filteredCars.filter(car => car.available);
+        filteredCars = filteredCars.filter(car => car.availability);
 
         if (filter) {
             filteredCars = this.filterCars(filteredCars, filter);

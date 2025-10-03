@@ -1,16 +1,18 @@
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Car } from "../types/Car";
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getCarTypeIcon, getFuelTypeIcon } from "../utils/IconUtils";
+import { useNavigation } from "@react-navigation/native";
 
 interface CarCardProps {
     car: Car;
 }
 
 export default function CarCard({ car }: CarCardProps) {
+    const navigation = useNavigation<any>();
 
     return (
-        <View style={styles.container}>
+        <TouchableOpacity style={styles.container} onPress={() => navigation.navigate("manageCar", {car})}>
             <View style={styles.topRow}>
                 <View style={styles.generalInfo}>
                     <Text style={styles.carHeader}>{car.make} {car.model}</Text>
@@ -66,7 +68,7 @@ export default function CarCard({ car }: CarCardProps) {
             <View>
                 <Text style={styles.priceText}>{car.pricePerKm} kr. / km</Text>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 }
 

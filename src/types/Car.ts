@@ -15,8 +15,14 @@ export type Car = {
 
   bookings: Booking[];
 
-  available: boolean; //Used by the owner to unlist the car without removing it from the app
+  availability: Availability[]; //Used by the owner to unlist the car without removing it from the app
 };
+
+export type Availability = {
+  id: number;
+  from: Date;
+  to: Date;
+}
 
 export type CarOwner = {
   id: number;

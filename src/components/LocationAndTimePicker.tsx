@@ -3,6 +3,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { useEffect, useState } from "react";
 import { TextInput, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import GooglePlacesTextInput from 'react-native-google-places-textinput';
 
 interface LocationAndTimeProps {
   pickupDate?: Date,
@@ -117,11 +118,12 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
 
   return (
     <View>
-      <TextInput
-        style={styles.input}
-        placeholder="Location"
+      <GooglePlacesTextInput
+        apiKey="AIzaSyD4u6t9lGaCT9nAh74ILpgLdFNFbj8MV7c"
+        fetchDetails={true}
+        detailsFields={['location']}
+        onPlaceSelect={(place) => {console.log(place);}}
         value={location}
-        onChangeText={setLocation}
       />
 
       <Text style={styles.label}>Pick-up</Text>

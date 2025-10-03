@@ -1,10 +1,12 @@
 import { useContext, useState } from "react";
-import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Car } from "../types/Car";
 import { getCarTypeIcon, getFuelTypeIcon, getTransmissionIcon } from "../utils/IconUtils";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from 'expo-image-picker';
 import { CarServiceContext } from "../services/CarServiceContext";
+import {ImageManipulator, SaveFormat} from 'expo-image-manipulator';
+import GooglePlacesTextInput from "react-native-google-places-textinput";
 
 interface CarForm {
   make?: string;
@@ -16,13 +18,17 @@ interface CarForm {
   fuelType?: Car["fuelType"];
   seats?: string;
   price?: string;
+  imageBase64?: string;
+  lat?: number;
+  long?: number;
 }
 
 export default function AddCarScreen() {
   const carService = useContext(CarServiceContext);
 
   const [car, setCar] = useState<CarForm>();
-  const [image, setImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  //const [image, setImage] = useState<string | null>(null);
 
   const getCarChip = (carType: Car["carType"]) => {
     return (
@@ -67,6 +73,7 @@ export default function AddCarScreen() {
       "transmission",
       "fuelType",
       "seats",
+      "imageBase64"
     ];
 
     // Check missing fields
@@ -74,15 +81,16 @@ export default function AddCarScreen() {
       (field) => !car?.[field] || car[field]?.toString().trim() === ""
     );
 
-    if (missing.length > 0 || !image) {
+    if (missing.length > 0) {
       Alert.alert(
         "Missing Information",
-        `Please fill in all required fields.${!image ? " And upload a car photo." : ""}`
+        `Please fill in all required fields.${!car?.imageBase64 ? " And upload a car photo." : ""}`
       );
       return;
     }
 
-    if (carService && car)
+    if (carService && car) {
+      setLoading(true);
       carService.addCar(
         {
           make: car.make!,
@@ -94,106 +102,154 @@ export default function AddCarScreen() {
           fuelType: car.fuelType!,
           seats: Number.parseInt(car.seats!),
           price: Number.parseFloat(car.price!),
+          image: car.imageBase64!,
           ownerId: "1" //TODO, use AuthContext to get UserID
         }
-      )
+      ).then(() => {
+        setLoading(false);
+        //TODO navigate to car page
+      });
+    }
   }
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView>
-        <ScrollView contentContainerStyle={styles.main}>
-          <View>
-            <Text>Car Brand</Text>
-            <TextInput style={styles.input} value={car?.make} onChangeText={(text) => { setCar(prev => ({ ...prev, make: text })) }} />
+      <SafeAreaView style={{flex: 1}}>
+        {loading &&
+          <View style={styles.loader}>
+            <ActivityIndicator size="large"/>
           </View>
-          <View>
-            <Text>Car Model</Text>
-            <TextInput style={styles.input} value={car?.model} onChangeText={(text) => { setCar(prev => ({ ...prev, model: text })) }} />
-          </View>
-          <View>
-            <Text>Car Year</Text>
-            <TextInput style={styles.input} value={car?.year} inputMode="numeric" onChangeText={(text) => { setCar(prev => ({ ...prev, year: text })) }} />
-          </View>
-
-          <View>
-            <Text>Location</Text>
-            <TextInput style={styles.input} onChangeText={(text) => { setCar(prev => ({ ...prev, location: text })) }} />
-          </View>
-
-          <View style={{ marginTop: 20 }}>
-            <Text>Car Type</Text>
-            <View style={styles.chipContainer}>
-              {getCarChip("Micro Car")}
-              {getCarChip("Medium")}
-              {getCarChip("SUV")}
-              {getCarChip("Van")}
-              {getCarChip("Truck")}
-              {getCarChip("Mini Bus")}
+        }
+        <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
+          <ScrollView style={{flex: 1}} contentContainerStyle={styles.main}>
+            <View>
+              <Text>Car Brand</Text>
+              <TextInput style={styles.input} value={car?.make} onChangeText={(text) => { setCar(prev => ({ ...prev, make: text })) }} />
             </View>
-          </View>
-
-          <View style={{ marginTop: 20 }}>
-            <Text>Transmission</Text>
-            <View style={styles.chipContainer}>
-              {getTransmissionChip("Manual")}
-              {getTransmissionChip("Automatic")}
+            <View>
+              <Text>Car Model</Text>
+              <TextInput style={styles.input} value={car?.model} onChangeText={(text) => { setCar(prev => ({ ...prev, model: text })) }} />
             </View>
-          </View>
-
-          <View style={{ marginTop: 20 }}>
-            <Text>Fuel Type</Text>
-            <View style={styles.chipContainer}>
-              {getFuelChip("Petrol")}
-              {getFuelChip("Diesel")}
-              {getFuelChip("Hybrid")}
-              {getFuelChip("Electric")}
+            <View>
+              <Text>Car Year</Text>
+              <TextInput style={styles.input} value={car?.year} inputMode="numeric" onChangeText={(text) => { setCar(prev => ({ ...prev, year: text })) }} />
             </View>
-          </View>
 
-          <View style={{ marginTop: 20 }}>
-            <Text>Seats</Text>
-            <TextInput inputMode="numeric" style={styles.input} onChangeText={(text) => { setCar(prev => ({ ...prev, seats: text })) }} />
-          </View>
+            <View>
+              <Text>Location</Text>
+              <GooglePlacesTextInput
+                style={{
+                  input: styles.input
+                }}  
+                apiKey={"AIzaSyD4u6t9lGaCT9nAh74ILpgLdFNFbj8MV7c"}
+                fetchDetails={true}
+                detailsFields={['location']}
+                onPlaceSelect={(place) => {
+                  console.log(place); 
+                  setCar(prev => ({
+                    ...prev, 
+                    location: place.structuredFormat.mainText.text, 
+                    lat: place.details!.location.latitude, 
+                    long: place.details!.location.longitude
+                  }));
+                }}
+              />
+            </View>
 
-          <View style={{ marginTop: 20 }}>
-            <Text>Car Photo</Text>
-            <TouchableOpacity
-              onPress={() => {
-                ImagePicker.launchCameraAsync({
-                  mediaTypes: ['images'],
-                  allowsEditing: true,
-                  aspect: [4, 3],
-                  quality: 1,
-                  
-                }).then((value) => {
-                  if (!value.canceled)
-                    setImage(value.assets[0].uri);
-                });
-              }}
-              >
-              {!image && 
-              <View style={styles.imageSelect}>
-                <Text>Click to Take Picture</Text>
+            <View style={{ marginTop: 20 }}>
+              <Text>Car Type</Text>
+              <View style={styles.chipContainer}>
+                {getCarChip("Micro Car")}
+                {getCarChip("Medium")}
+                {getCarChip("SUV")}
+                {getCarChip("Van")}
+                {getCarChip("Truck")}
+                {getCarChip("Mini Bus")}
               </View>
-              }
-              {image && <Image source={{ uri: image }} style={styles.image} />}
-            </TouchableOpacity>
-          </View>
+            </View>
 
-          <View>
-            <Text>Price per km</Text>
-            <TextInput style={styles.input} value={car?.year} inputMode="numeric" onChangeText={(text) => { setCar(prev => ({ ...prev, price: text })) }} />
-          </View>
+            <View style={{ marginTop: 20 }}>
+              <Text>Transmission</Text>
+              <View style={styles.chipContainer}>
+                {getTransmissionChip("Manual")}
+                {getTransmissionChip("Automatic")}
+              </View>
+            </View>
 
-          <View>
-            <TouchableOpacity 
-              style={styles.submitButton}
-              onPress={handleSubmit}>
-              <Text style={styles.submitText}>Put car up for Rent</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+            <View style={{ marginTop: 20 }}>
+              <Text>Fuel Type</Text>
+              <View style={styles.chipContainer}>
+                {getFuelChip("Petrol")}
+                {getFuelChip("Diesel")}
+                {getFuelChip("Hybrid")}
+                {getFuelChip("Electric")}
+              </View>
+            </View>
+
+            <View style={{ marginTop: 20 }}>
+              <Text>Seats</Text>
+              <TextInput inputMode="numeric" style={styles.input} onChangeText={(text) => { setCar(prev => ({ ...prev, seats: text })) }} />
+            </View>
+
+            <View style={{ marginTop: 20 }}>
+              <Text>Car Photo</Text>
+              <TouchableOpacity
+                onPress={async () => {
+                  const value = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ['images'],
+                    allowsEditing: true,
+                    aspect: [4, 3],
+                    quality: 1
+                  });
+
+                  console.log(value);
+                  if (value.canceled === true) {
+                    return;
+                  }
+
+                  //Downscale and Compress to not upload 200 Mega Pixel images
+                 try {
+                   const manipulator = ImageManipulator.manipulate(value.assets[0].uri);
+                   manipulator.resize({width: 640, height: 480});
+                   const rendered = await manipulator.renderAsync();
+                   const compressed = await rendered.saveAsync({
+                     compress: 0.5, // 50% quality
+                     format: SaveFormat.JPEG,
+                     base64: true
+                   });
+
+                   setCar(prev => ({ ...prev, imageBase64: compressed.base64 ?? undefined }));
+
+                   console.log(compressed);
+                 } catch (e) {
+                  console.log(e);
+                 }
+
+                }}
+                >
+                {!car?.imageBase64 && 
+                <View style={styles.imageSelect}>
+                  <Text>Click to Take Picture</Text>
+                </View>
+                }
+                {car?.imageBase64 && <Image source={{ uri: "data:image/jpeg;base64,"+car.imageBase64 }} style={styles.image} />}
+              </TouchableOpacity>
+            </View>
+
+            <View>
+              <Text>Price per km</Text>
+              <TextInput style={styles.input} value={car?.price} inputMode="numeric" onChangeText={(text) => { setCar(prev => ({ ...prev, price: text })) }} />
+            </View>
+
+            <View>
+              <TouchableOpacity 
+                style={styles.submitButton}
+                onPress={handleSubmit}>
+                <Text style={styles.submitText}>Put car up for Rent</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>
   )
@@ -204,7 +260,15 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 20,
     display: "flex",
-    gap: 10
+    gap: 10,
+  },
+  loader: {
+    height: "100%", 
+    width: "100%", 
+    backgroundColor: "rgba(0,0,0,0.5)", 
+    zIndex: 1000, 
+    position: "absolute",
+    justifyContent: "center"
   },
   input: {
     borderColor: "lightgrey",
