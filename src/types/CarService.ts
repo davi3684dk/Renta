@@ -6,7 +6,25 @@ export default interface CarService {
      * 
      * Returns a list of cars using filters defined
      */
-    getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]>
+    getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]>;
+
+    getCar(id: string): Promise<Car[]>;
+
+    addCar(car: NewCarBody): Promise<void>;
+}
+
+
+export type NewCarBody = {
+  make: string;
+  model: string;
+  year: number;
+  location: string;
+  carType: Car["carType"];
+  transmission: Car["transmission"];
+  fuelType: Car["fuelType"];
+  seats: number;
+  price: number;
+  ownerId: string;
 }
 
 export type CarFilter = {

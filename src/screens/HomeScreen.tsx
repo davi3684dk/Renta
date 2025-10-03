@@ -43,10 +43,7 @@ export default function HomeScreen() {
         <Text style={{ marginBottom: 8 }}>Rent your car</Text>
         <TouchableOpacity
           style={styles.circleBtn}
-          onPress={() => navigation.navigate("cars", {
-            fromDate: pickUpDate,
-            toDate: dropOffDate
-          })}
+          onPress={() => navigation.navigate("addCar")}
         >
           <Text style={{ color: "white", fontSize: 18 }}>{">"}</Text>
         </TouchableOpacity>

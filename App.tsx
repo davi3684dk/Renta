@@ -11,6 +11,7 @@ import Customization from './src/screens/CustomizationScreen';
 import ProfileBilling from './src/screens/ProfileBillingScreen';
 import { TouchableOpacity } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
+import AddCarScreen from './src/screens/AddCarScreen';
 
 
 const Stack = createStackNavigator();
@@ -39,6 +40,10 @@ function MyStack() {
       <Stack.Screen 
         name='cars' component={CarsScreen}
         options={{ headerTitle: "Find Cars" }}
+        />
+      <Stack.Screen
+        name='addCar' component={AddCarScreen}
+        options={{ headerTitle: "Add Car"}}
         />
       <Stack.Screen 
         name='settings' component={SettingsScreen}
