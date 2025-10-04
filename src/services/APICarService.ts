@@ -5,10 +5,10 @@ import CarService, {
   CarSort,
   NewCarBody,
 } from "../types/CarService";
+import { API_URL } from "../constants/Consts";
 
 export default class APICarService implements CarService {
   private onTokenExpired?: () => void;
-  API_URL: any;
 
   constructor(onTokenExpired?: () => void) {
     this.onTokenExpired = onTokenExpired;
@@ -29,11 +29,11 @@ export default class APICarService implements CarService {
       },
     };
 
-    console.log("Making request to:", `${this.API_URL}${endpoint}`);
+    console.log("Making request to:", `${API_URL}${endpoint}`);
     console.log("With token:", token ? "YES" : "NO");
 
     try {
-      const response = await fetch(`${this.API_URL}${endpoint}`, config);
+      const response = await fetch(`${API_URL}${endpoint}`, config);
 
       console.log("Response status:", response.status);
       console.log("Response ok:", response.ok);
@@ -62,7 +62,7 @@ export default class APICarService implements CarService {
     } catch (error: any) {
       console.error("Fetch error:", error.message);
       if (error.message === "Network request failed") {
-        console.error("Cannot connect to server at:", this.API_URL);
+        console.error("Cannot connect to server at:", API_URL);
         console.error("Make sure backend is running and IP address is correct");
       }
       throw error;
@@ -93,7 +93,7 @@ export default class APICarService implements CarService {
       const queryString = new URLSearchParams(params).toString();
       const endpoint = queryString ? `/cars?${queryString}` : "/cars";
 
-      console.log("Fetching cars from:", `${this.API_URL}${endpoint}`);
+      console.log("Fetching cars from:", `${API_URL}${endpoint}`);
 
       const data = await this.fetchWithAuth(endpoint);
 
