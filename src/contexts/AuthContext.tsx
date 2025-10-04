@@ -24,7 +24,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to decode JWT and get expiration time
 const getTokenExpiration = (token: string): number | null => {
   try {
     const base64Url = token.split(".")[1];
@@ -37,14 +36,13 @@ const getTokenExpiration = (token: string): number | null => {
     );
 
     const payload = JSON.parse(jsonPayload);
-    return payload.exp ? payload.exp * 1000 : null; // Convert to milliseconds
+    return payload.exp ? payload.exp * 1000 : null;
   } catch (error) {
     console.error("Error decoding token:", error);
     return null;
   }
 };
 
-// Helper function to check if token is expired
 const isTokenExpired = (token: string): boolean => {
   const expirationTime = getTokenExpiration(token);
   if (!expirationTime) return true;
@@ -67,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const expirationTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Clear any existing expiration timer
   const clearExpirationTimer = () => {
     if (expirationTimerRef.current) {
       clearTimeout(expirationTimerRef.current);
@@ -75,7 +72,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Set up automatic logout when token expires
   const setupExpirationTimer = (jwtToken: string) => {
     clearExpirationTimer();
 
@@ -105,11 +101,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Load token on app start and check if it's expired
   useEffect(() => {
     AsyncStorage.getItem("jwt").then((savedToken) => {
       if (savedToken) {
-        // Check if token is expired
         if (isTokenExpired(savedToken)) {
           console.log("Saved token is expired, clearing it");
           AsyncStorage.removeItem("jwt");
@@ -123,7 +117,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     });
 
-    // Cleanup timer on unmount
     return () => {
       clearExpirationTimer();
     };
