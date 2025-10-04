@@ -24,9 +24,9 @@ export default function CarsScreen({route}: any) {
     const [editingFilter, setEditingFilter] = useState<string | null>(null);
     const [sorting, setSorting] = useState<CarSort>();
 
-    const { fromDate, toDate, location } = route.params;
+    const { fromDate, toDate, place } = route.params;
  
-    const [filters, setFilters] = useState<CarFilter>({fromDate: fromDate, toDate: toDate, location: location});
+    const [filters, setFilters] = useState<CarFilter>({fromDate: fromDate, toDate: toDate, location: place.location, lat: place.lat, long: place.long});
 
     //Get cars from service after changes to filter
     useEffect(() => {
@@ -288,7 +288,7 @@ export default function CarsScreen({route}: any) {
                   options={[0.5, 1, 2, 3, 5]}
                   selected={filters.distance}
                   onChange={(arr: any) => updateFilter("distance", arr)}
-                  anyText="Any Distance"
+                  anyText="10 km"
                   suffix="km"
                 />
               </>
@@ -340,7 +340,7 @@ export default function CarsScreen({route}: any) {
                     updateFilter("fromDate", pickupDate);
                     updateFilter("toDate", dropoffDate);
                   }}
-                  onLocationChange={(location: string) => updateFilter("location", location)}
+                  onLocationChange={(place) => {setFilters(prev => ({...prev, location: place.location, lat: place.lat, long: place.long}))}}
                 />
               )}
             </TouchableOpacity>

@@ -60,7 +60,6 @@ export default class APICarService implements CarService {
       const params: any = {};
 
       if (filter) {
-        if (filter.location) params.location = filter.location;
         if (filter.carType && filter.carType.length > 0) {
           params.carType = filter.carType[0];
         }
@@ -71,6 +70,9 @@ export default class APICarService implements CarService {
         if (filter.priceMin !== undefined) params.minPrice = filter.priceMin;
         if (filter.priceMax !== undefined) params.maxPrice = filter.priceMax;
         if (filter.moreThan5Seats) params.minSeats = 6;
+        if (filter.lat !== undefined) params.userLat = filter.lat;
+        if (filter.long !== undefined) params.userLng = filter.long;
+        params.maxDistance = filter.distance !== undefined ? filter.distance : 10;
       }
 
       const queryString = new URLSearchParams(params).toString();
@@ -195,7 +197,9 @@ export default class APICarService implements CarService {
         carType: car.carType,
         fuelType: car.fuelType,
         transmission: car.transmission,
-        seats: car.seats
+        seats: car.seats,
+        latitude: car.lat,
+        longitude: car.long
       };
 
       const result = await this.fetchWithAuth("/cars", {

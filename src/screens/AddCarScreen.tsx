@@ -114,6 +114,7 @@ export default function AddCarScreen() {
           }
         ).then((car) => {
           setLoading(false);
+          navigation.navigate("home");
           navigation.navigate("manageCar", {car});
           //TODO navigate to car page
         });
