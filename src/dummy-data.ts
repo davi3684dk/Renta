@@ -21,9 +21,12 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [
-      { id: 101, from: new Date("2025-10-10"), to: new Date("2025-10-15") },
+      { id: 101, from: new Date("2025-10-10"), to: new Date("2025-10-12") },
+      { id: 102, from: new Date("2025-10-13"), to: new Date("2025-10-14") }
     ],
-    available: true,
+    availability: [
+      { id: 1, from: new Date("2025-10-1"), to: new Date("2025-10-22") },
+    ]
   },
   {
     id: 2,
@@ -45,7 +48,7 @@ const dummyCars: Car[] = [
     transmission: "Manual",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 3,
@@ -69,7 +72,7 @@ const dummyCars: Car[] = [
     bookings: [
       { id: 102, from: new Date("2025-11-01"), to: new Date("2025-11-05") },
     ],
-    available: true,
+    availability: true,
   },
   {
     id: 4,
@@ -91,7 +94,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [],
-    available: false,
+    availability: false,
   },
   {
     id: 5,
@@ -113,7 +116,7 @@ const dummyCars: Car[] = [
     transmission: "Manual",
     seats: 8,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 6,
@@ -135,7 +138,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 7,
@@ -159,7 +162,7 @@ const dummyCars: Car[] = [
     bookings: [
       { id: 103, from: new Date("2025-12-01"), to: new Date("2025-12-10") },
     ],
-    available: true,
+    availability: true,
   },
   {
     id: 8,
@@ -181,7 +184,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 9,
@@ -203,7 +206,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 10,
@@ -225,7 +228,7 @@ const dummyCars: Car[] = [
     transmission: "Manual",
     seats: 4,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 11,
@@ -247,7 +250,7 @@ const dummyCars: Car[] = [
     transmission: "Manual",
     seats: 3,
     bookings: [],
-    available: false,
+    availability: false,
   },
   {
     id: 12,
@@ -269,7 +272,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 12,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 13,
@@ -291,7 +294,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 14,
@@ -313,7 +316,7 @@ const dummyCars: Car[] = [
     transmission: "Manual",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 15,
@@ -335,7 +338,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 16,
@@ -357,7 +360,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 17,
@@ -379,7 +382,7 @@ const dummyCars: Car[] = [
     transmission: "Manual",
     seats: 5,
     bookings: [],
-    available: false,
+    availability: false,
   },
   {
     id: 18,
@@ -401,7 +404,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 19,
@@ -423,7 +426,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 5,
     bookings: [],
-    available: true,
+    availability: true,
   },
   {
     id: 20,
@@ -445,7 +448,7 @@ const dummyCars: Car[] = [
     transmission: "Automatic",
     seats: 9,
     bookings: [],
-    available: true,
+    availability: true,
   },
 ];
 

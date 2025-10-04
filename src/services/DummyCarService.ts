@@ -1,11 +1,29 @@
 import dummyCars from "../dummy-data";
 import { Car } from "../types/Car";
-import CarService, { CarFilter, CarSort } from "../types/CarService";
+import CarService, { CarFilter, CarSort, NewCarBody } from "../types/CarService";
 
 export default class DummyCarService implements CarService {
+    removeCar(id: string): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+    
+    addAvailability(carId: string, fromDate: Date, toDate: Date): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+    removeAvailability(id: string): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+    async getCar(id: string): Promise<Car[]> {
+        throw new Error("Method not implemented.");
+    }
+
+    async addCar(car: NewCarBody): Promise<Car> {
+        throw new Error("Method not implemented.");
+    }
+
     async getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]> {
         let filteredCars = [...dummyCars];
-        filteredCars = filteredCars.filter(car => car.available);
+        filteredCars = filteredCars.filter(car => car.availability);
 
         if (filter) {
             filteredCars = this.filterCars(filteredCars, filter);
