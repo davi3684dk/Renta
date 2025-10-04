@@ -1,28 +1,34 @@
 import { Car } from "./Car";
 
 export default interface CarService {
-    /**
-     * GetCars
-     * 
-     * Returns a list of cars using filters defined
-     */
-    getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]>;
+  /**
+   * GetCars
+   *
+   * Returns a list of cars using filters defined
+   */
+  getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]>;
 
-    getCar(id: string): Promise<Car[]>;
+  getCar(id: string): Promise<Car[]>;
 
-    addCar(car: NewCarBody): Promise<Car>;
+  /**
+   * GetCarsByOwner
+   *
+   * Returns a list of cars owned by a specific user
+   */
+  getCarsByOwner(ownerId: number): Promise<Car[]>;
 
-    removeCar(id: string): Promise<void>;
+  addCar(car: NewCarBody): Promise<Car>;
 
-    addAvailability(carId: string, fromDate: Date, toDate: Date): Promise<void>;
+  removeCar(id: string): Promise<void>;
 
-    removeAvailability(id: string): Promise<void>;
+  addAvailability(carId: string, fromDate: Date, toDate: Date): Promise<void>;
 
-    addBooking(carId: string, fromDate: Date, toDate: Date): Promise<void>;
+  removeAvailability(id: string): Promise<void>;
 
-    removeBooking(bookingId: string): Promise<void>;
+  addBooking(carId: string, fromDate: Date, toDate: Date): Promise<void>;
+
+  removeBooking(bookingId: string): Promise<void>;
 }
-
 
 export type NewCarBody = {
   make: string;
@@ -37,23 +43,23 @@ export type NewCarBody = {
   image: string;
   lat: number;
   long: number;
-}
-
-export type CarFilter = {
-    priceMin?: number, 
-    priceMax?: number,
-    carType?: Car['carType'][];
-    fuelType?: Car['fuelType'][];
-    brand?: string,
-    transmission?: Car['transmission'];
-    moreThan5Seats?: boolean;
-    minRating?: number;
-    distance?: number;
-    location?: string;
-    lat?: number;
-    long?: number
-    fromDate: Date;
-    toDate: Date;
 };
 
-export type CarSort = 'Cheapest' | 'Closest' | 'Rating'
+export type CarFilter = {
+  priceMin?: number;
+  priceMax?: number;
+  carType?: Car["carType"][];
+  fuelType?: Car["fuelType"][];
+  brand?: string;
+  transmission?: Car["transmission"];
+  moreThan5Seats?: boolean;
+  minRating?: number;
+  distance?: number;
+  location?: string;
+  lat?: number;
+  long?: number;
+  fromDate: Date;
+  toDate: Date;
+};
+
+export type CarSort = "Cheapest" | "Closest" | "Rating";
