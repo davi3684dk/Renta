@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "../constants/Consts";
 
@@ -18,16 +24,109 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to decode JWT and get expiration time
+const getTokenExpiration = (token: string): number | null => {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+
+    const payload = JSON.parse(jsonPayload);
+    return payload.exp ? payload.exp * 1000 : null; // Convert to milliseconds
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
+
+// Helper function to check if token is expired
+const isTokenExpired = (token: string): boolean => {
+  const expirationTime = getTokenExpiration(token);
+  if (!expirationTime) return true;
+
+  const currentTime = Date.now();
+  const isExpired = currentTime >= expirationTime;
+
+  if (isExpired) {
+    console.log("Token is expired");
+  } else {
+    const timeUntilExpiry = Math.floor((expirationTime - currentTime) / 1000);
+    console.log(`Token expires in ${timeUntilExpiry} seconds`);
+  }
+
+  return isExpired;
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const expirationTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load token on app start
+  // Clear any existing expiration timer
+  const clearExpirationTimer = () => {
+    if (expirationTimerRef.current) {
+      clearTimeout(expirationTimerRef.current);
+      expirationTimerRef.current = null;
+    }
+  };
+
+  // Set up automatic logout when token expires
+  const setupExpirationTimer = (jwtToken: string) => {
+    clearExpirationTimer();
+
+    const expirationTime = getTokenExpiration(jwtToken);
+    if (!expirationTime) {
+      console.error("Could not get token expiration time");
+      return;
+    }
+
+    const currentTime = Date.now();
+    const timeUntilExpiry = expirationTime - currentTime;
+
+    if (timeUntilExpiry > 0) {
+      console.log(
+        `Setting up auto-logout in ${Math.floor(
+          timeUntilExpiry / 1000
+        )} seconds`
+      );
+
+      expirationTimerRef.current = setTimeout(() => {
+        console.log("Token expired - auto logout triggered");
+        handleTokenExpiration();
+      }, timeUntilExpiry);
+    } else {
+      console.log("Token already expired");
+      handleTokenExpiration();
+    }
+  };
+
+  // Load token on app start and check if it's expired
   useEffect(() => {
     AsyncStorage.getItem("jwt").then((savedToken) => {
-      setToken(savedToken);
+      if (savedToken) {
+        // Check if token is expired
+        if (isTokenExpired(savedToken)) {
+          console.log("Saved token is expired, clearing it");
+          AsyncStorage.removeItem("jwt");
+          setToken(null);
+        } else {
+          console.log("Saved token is still valid");
+          setToken(savedToken);
+          setupExpirationTimer(savedToken);
+        }
+      }
       setIsLoading(false);
     });
+
+    // Cleanup timer on unmount
+    return () => {
+      clearExpirationTimer();
+    };
   }, []);
 
   const register = async (
@@ -76,6 +175,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       await AsyncStorage.setItem("jwt", jwtToken);
       setToken(jwtToken);
+
+      // Set up automatic logout when token expires
+      setupExpirationTimer(jwtToken);
     } catch (error: any) {
       if (error.message === "Network request failed") {
         throw new Error(
@@ -87,12 +189,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    clearExpirationTimer();
     await AsyncStorage.removeItem("jwt");
     setToken(null);
   };
 
   const handleTokenExpiration = async () => {
     console.log("Token expired - logging out user");
+    clearExpirationTimer();
     await AsyncStorage.removeItem("jwt");
     setToken(null);
   };
