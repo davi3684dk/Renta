@@ -29,6 +29,8 @@ import { CarFilter, CarSort } from "../types/CarService";
 import LocationAndTimeComponent from "../components/LocationAndTimePicker";
 
 export default function CarsScreen({ route }: any) {
+  const [brands, setBrands] = useState<string[]>([]);
+
   const carService = useContext(CarServiceContext);
 
   const navigation = useNavigation();
@@ -52,7 +54,13 @@ export default function CarsScreen({ route }: any) {
 
   useEffect(() => {
     if (carService) {
-      carService.getCars(filters, sorting).then((c) => setCars(c));
+      carService.getCars(filters, sorting).then((c) => {
+        setCars(c);
+        const b = [...new Set(c.map((car) => car.make))];
+        if (brands.length < b.length) {
+          setBrands(b)
+        }
+      });
     }
   }, [sorting, filters]);
 
@@ -395,7 +403,7 @@ export default function CarsScreen({ route }: any) {
               <>
                 <Text style={{ fontSize: 24 }}>Brand</Text>
                 <MultiSelectChips
-                  options={[...new Set(dummyCars.map((car) => car.make))]}
+                  options={brands}
                   selected={filters.brand ?? []}
                   onChange={(arr: any) => updateFilter("brand", arr)}
                   anyText="Any"

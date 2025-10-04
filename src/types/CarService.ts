@@ -40,7 +40,7 @@ export type CarFilter = {
   priceMax?: number;
   carType?: Car["carType"][];
   fuelType?: Car["fuelType"][];
-  brand?: string;
+  brand?: string[];
   transmission?: Car["transmission"];
   moreThan5Seats?: boolean;
   minRating?: number;

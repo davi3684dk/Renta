@@ -73,10 +73,10 @@ export default class APICarService implements CarService {
 
       if (filter) {
         if (filter.carType && filter.carType.length > 0) {
-          params.carType = filter.carType[0];
+          params.carTypes = filter.carType;
         }
         if (filter.fuelType && filter.fuelType.length > 0) {
-          params.fuelType = filter.fuelType[0];
+          params.fuelTypes = filter.fuelType;
         }
         if (filter.transmission) params.transmission = filter.transmission;
         if (filter.priceMin !== undefined) params.minPrice = filter.priceMin;
@@ -86,6 +86,7 @@ export default class APICarService implements CarService {
         if (filter.long !== undefined) params.userLng = filter.long;
         if (filter.fromDate !== undefined) params.startDate = filter.fromDate.toISOString();
         if (filter.toDate !== undefined) params.endDate = filter.toDate.toISOString();
+        if (filter.brand !== undefined) params.makes = filter.brand
         params.maxDistance =
           filter.distance !== undefined ? filter.distance : 10;
       }
