@@ -7,11 +7,34 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { CarServiceContext } from "../services/CarServiceContext";
 import { Car } from "../types/Car";
 import CarCard from "../components/CarCard";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const getUserIdFromToken = async (): Promise<number | null> => {
+  try {
+    const token = await AsyncStorage.getItem("jwt");
+    if (!token) return null;
+
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+
+    const payload = JSON.parse(jsonPayload);
+    return payload.sub || payload.userId || payload.id || null;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
 
 export default function MyRentedCarsScreen() {
   const navigation = useNavigation<any>();
@@ -20,21 +43,30 @@ export default function MyRentedCarsScreen() {
   const [cars, setCars] = useState<Car[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadMyCars();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadMyCars();
+    }, [])
+  );
 
   const loadMyCars = async () => {
     try {
       setIsLoading(true);
-      // Fetch all cars - in a real app, you'd have an endpoint for user's own cars
       if (carService) {
-        const allCars = await carService.getCars();
-        // For now, we'll show all cars. In production, filter by owner ID
-        setCars(allCars);
+        const userId = await getUserIdFromToken();
+
+        if (userId) {
+          console.log("Loading cars for user ID:", userId);
+          const myCars = await carService.getCarsByOwner(userId);
+          setCars(myCars);
+        } else {
+          console.error("Could not get user ID from token");
+          setCars([]);
+        }
       }
     } catch (error) {
       console.error("Error loading cars:", error);
+      setCars([]);
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +162,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
-    gap: 10
+    gap: 10,
   },
   emptyContainer: {
     flex: 1,

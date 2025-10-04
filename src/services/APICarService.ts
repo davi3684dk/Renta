@@ -38,7 +38,6 @@ export default class APICarService implements CarService {
       console.log("Response status:", response.status);
       console.log("Response ok:", response.ok);
 
-      // Check for 401 Unauthorized (token expired)
       if (response.status === 401) {
         console.error("401 Unauthorized - Token expired");
         if (this.onTokenExpired) {
@@ -55,7 +54,6 @@ export default class APICarService implements CarService {
         );
       }
 
-      // Handle empty responses (like DELETE)
       const text = await response.text();
       console.log("Response text length:", text.length);
       return text ? JSON.parse(text) : null;
@@ -105,7 +103,6 @@ export default class APICarService implements CarService {
         return [];
       }
 
-      // Transform backend data to frontend format
       const transformedCars = data.map((car: any) => ({
         id: car.id.toString(),
         make: car.make,
@@ -200,17 +197,76 @@ export default class APICarService implements CarService {
     }
   }
 
+  async getCarsByOwner(ownerId: number): Promise<Car[]> {
+    try {
+      console.log("Fetching cars for owner:", ownerId);
+      const data = await this.fetchWithAuth(`/cars/owner/${ownerId}`);
+
+      console.log("Raw data from backend:", data);
+      console.log("Number of owner's cars received:", data?.length || 0);
+
+      if (!data || !Array.isArray(data)) {
+        console.error("Invalid data format received:", data);
+        return [];
+      }
+
+      const transformedCars = data.map((car: any) => ({
+        id: car.id.toString(),
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        pricePerKm: car.pricePerKm,
+        location: car.location,
+        imageUrl: car.imageBase64 || "",
+        carType: car.carType,
+        fuelType: car.fuelType,
+        transmission: car.transmission,
+        seats: car.seats,
+        owner: {
+          id: car.owner?.id || 0,
+          name:
+            car.owner?.firstName && car.owner?.lastName
+              ? `${car.owner.firstName} ${car.owner.lastName}`
+              : car.owner?.username || "Unknown",
+          avatarUrl:
+            car.owner?.avatarBase64 ||
+            "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
+          rating: car.owner?.rating || 0,
+          numberOfReviews: car.owner?.numberOfReviews || 0,
+        },
+        bookings:
+          car.bookings?.map((b: any) => ({
+            id: b.id,
+            from: new Date(b.from),
+            to: new Date(b.to),
+          })) || [],
+        availability:
+          car.availability?.map((a: any) => ({
+            id: a.id,
+            from: new Date(a.from),
+            to: new Date(a.to),
+          })) || [],
+      }));
+
+      console.log("Transformed owner's cars:", transformedCars.length);
+      return transformedCars;
+    } catch (error) {
+      console.error("Error fetching owner's cars:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+      return [];
+    }
+  }
+
   async addCar(car: NewCarBody): Promise<Car> {
     try {
       console.log(car);
-      // Transform frontend format to backend format
       const carData = {
         make: car.make,
         model: car.model,
         year: car.year,
         pricePerKm: car.price,
         location: car.location,
-        imageBase64: car.image, // Assuming image is base64
+        imageBase64: car.image,
         carType: car.carType,
         fuelType: car.fuelType,
         transmission: car.transmission,
