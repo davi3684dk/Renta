@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-const API_URL = "http://10.0.0.200:3000";
+import { API_URL } from "../constants/Consts";
 
 export async function fetchWithAuth(
   endpoint: string,

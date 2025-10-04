@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-const API_URL = "http://10.0.0.200:3000";
+import { API_URL } from "../constants/Consts";
 
 interface AuthContextType {
   token: string | null;

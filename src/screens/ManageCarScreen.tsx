@@ -202,8 +202,6 @@ export default function ManageCarScreen({ route }: any) {
                     .then((value) => {
                       setSelectedPeriod({});
                       setCar(car);
-                      // Navigate to the rented cars screen after marking availability
-                      navigation.navigate("myRentedCars");
                     })
                     .catch((reason) => {
                       alert(reason);
@@ -226,7 +224,9 @@ export default function ManageCarScreen({ route }: any) {
                     {
                       text: "Yes",
                       onPress: () => {
-                        carService?.removeCar(car.id.toString());
+                        carService?.removeCar(car.id.toString()).then(() => {
+                          navigation.navigate("myRentedCars");
+                        });
                       },
                     },
                     { text: "Cancel" },

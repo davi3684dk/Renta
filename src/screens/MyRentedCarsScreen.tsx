@@ -11,6 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import { CarServiceContext } from "../services/CarServiceContext";
 import { Car } from "../types/Car";
 import CarCard from "../components/CarCard";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 export default function MyRentedCarsScreen() {
   const navigation = useNavigation<any>();
@@ -52,44 +53,45 @@ export default function MyRentedCarsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      {cars.length > 0 && (
-        <View style={styles.header}>
-          <Text style={styles.headerText}>My Rented Out Cars</Text>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => navigation.navigate("addCar")}
-          >
-            <Text style={styles.addButtonText}>Rent out new Car</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {cars.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>
-            You haven't rented out any cars yet
-          </Text>
-          <TouchableOpacity
-            style={styles.emptyButton}
-            onPress={() => navigation.navigate("addCar")}
-          >
-            <Text style={styles.emptyButtonText}>Add Your First Car</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={cars}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleCarPress(item)}>
-              <CarCard car={item} />
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        {cars.length > 0 && (
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => navigation.navigate("addCar")}
+            >
+              <Text style={styles.addButtonText}>Rent out new Car</Text>
             </TouchableOpacity>
-          )}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
-    </View>
+          </View>
+        )}
+
+        {cars.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              You haven't rented out any cars yet
+            </Text>
+            <TouchableOpacity
+              style={styles.emptyButton}
+              onPress={() => navigation.navigate("addCar")}
+            >
+              <Text style={styles.emptyButtonText}>Add Your First Car</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={cars}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => handleCarPress(item)}>
+                <CarCard car={item} />
+              </TouchableOpacity>
+            )}
+            contentContainerStyle={styles.listContainer}
+          />
+        )}
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -128,6 +130,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
+    gap: 10
   },
   emptyContainer: {
     flex: 1,

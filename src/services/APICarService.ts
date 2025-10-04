@@ -7,8 +7,8 @@ import CarService, {
 } from "../types/CarService";
 
 export default class APICarService implements CarService {
-  API_URL = "http://10.0.0.200:3000";
   private onTokenExpired?: () => void;
+  API_URL: any;
 
   constructor(onTokenExpired?: () => void) {
     this.onTokenExpired = onTokenExpired;

@@ -114,6 +114,7 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
         apiKey="AIzaSyD4u6t9lGaCT9nAh74ILpgLdFNFbj8MV7c"
         fetchDetails={true}
         detailsFields={["location"]}
+        placeHolderText="Search for a location"
         onPlaceSelect={(place) => {
           if (place.structuredFormat.mainText) {
             props.onLocationChange({location: place.structuredFormat.mainText.text, lat: place.details!.location.latitude, long: place.details!.location.longitude});

@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import LocationAndTimeComponent, { Place } from "../components/LocationAndTimePicker";
@@ -15,6 +16,19 @@ export default function HomeScreen() {
   const [location, setLocation] = useState<Place | undefined>();
   const [pickUpDate, setPickUpDate] = useState(new Date());
   const [dropOffDate, setDropOffDate] = useState(new Date());
+
+  function handleSearch() {
+    if (!pickUpDate || !dropOffDate || !location) {
+      Alert.alert("Search", "Please input Location and Dates");
+      return;
+    }
+
+    navigation.navigate("cars", {
+      fromDate: pickUpDate,
+      toDate: dropOffDate,
+      place: location
+    });
+  }
 
   return (
     <View style={styles.container}>
@@ -31,11 +45,7 @@ export default function HomeScreen() {
         />
         <TouchableOpacity
           style={styles.findBtn}
-          onPress={() => navigation.navigate("cars", {
-            fromDate: pickUpDate,
-            toDate: dropOffDate,
-            place: location
-          })}
+          onPress={handleSearch}
         >
           <Text style={styles.findBtnText}>Find Rental</Text>
         </TouchableOpacity>
