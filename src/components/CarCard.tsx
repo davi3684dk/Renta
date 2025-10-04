@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "column",
         gap: 5,
-        height: 114
+        width: "50%"
     },
     ownerContainer: {
         display: "flex",
