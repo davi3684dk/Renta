@@ -10,7 +10,13 @@ export default interface CarService {
 
     getCar(id: string): Promise<Car[]>;
 
-    addCar(car: NewCarBody): Promise<void>;
+    addCar(car: NewCarBody): Promise<Car>;
+
+    removeCar(id: string): Promise<void>;
+
+    addAvailability(carId: string, fromDate: Date, toDate: Date): Promise<void>;
+
+    removeAvailability(id: string): Promise<void>;
 }
 
 

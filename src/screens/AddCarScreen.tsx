@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { CarServiceContext } from "../services/CarServiceContext";
 import {ImageManipulator, SaveFormat} from 'expo-image-manipulator';
 import GooglePlacesTextInput from "react-native-google-places-textinput";
+import { useNavigation } from "@react-navigation/native";
 
 interface CarForm {
   make?: string;
@@ -25,6 +26,8 @@ interface CarForm {
 
 export default function AddCarScreen() {
   const carService = useContext(CarServiceContext);
+
+  const navigation = useNavigation<any>();
 
   const [car, setCar] = useState<CarForm>();
   const [loading, setLoading] = useState(false);
@@ -105,8 +108,9 @@ export default function AddCarScreen() {
           image: car.imageBase64!,
           ownerId: "1" //TODO, use AuthContext to get UserID
         }
-      ).then(() => {
+      ).then((car) => {
         setLoading(false);
+        navigation.navigate("manageCar", car);
         //TODO navigate to car page
       });
     }
