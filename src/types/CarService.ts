@@ -8,7 +8,7 @@ export default interface CarService {
    */
   getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]>;
 
-  getCar(id: string): Promise<Car[]>;
+  getCar(id: string): Promise<Car>;
 
   /**
    * GetCarsByOwner

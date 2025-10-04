@@ -84,6 +84,8 @@ export default class APICarService implements CarService {
         if (filter.moreThan5Seats) params.minSeats = 6;
         if (filter.lat !== undefined) params.userLat = filter.lat;
         if (filter.long !== undefined) params.userLng = filter.long;
+        if (filter.fromDate !== undefined) params.startDate = filter.fromDate.toISOString();
+        if (filter.toDate !== undefined) params.endDate = filter.toDate.toISOString();
         params.maxDistance =
           filter.distance !== undefined ? filter.distance : 10;
       }
@@ -150,11 +152,12 @@ export default class APICarService implements CarService {
     }
   }
 
-  async getCar(id: string): Promise<Car[]> {
+  async getCar(id: string): Promise<Car> {
     try {
       const car = await this.fetchWithAuth(`/cars/${id}`);
 
-      return [
+
+      return (
         {
           id: car.id.toString(),
           make: car.make,
@@ -180,17 +183,16 @@ export default class APICarService implements CarService {
           bookings:
             car.bookings?.map((b: any) => ({
               id: b.id,
-              from: new Date(b.from),
-              to: new Date(b.to),
+              from: new Date(b.startDate),
+              to: new Date(b.endDate),
             })) || [],
           availability:
-            car.availability?.map((a: any) => ({
+            car.availabilities?.map((a: any) => ({
               id: a.id,
-              from: new Date(a.from),
-              to: new Date(a.to),
+              from: new Date(a.startDate),
+              to: new Date(a.endDate),
             })) || [],
-        },
-      ];
+        });
     } catch (error) {
       console.error("Error fetching car:", error);
       throw new Error("Failed to fetch car details");

@@ -41,6 +41,13 @@ export default function ManageCarScreen({ route }: any) {
   const carService = useContext(CarServiceContext);
   const navigation = useNavigation<any>();
 
+  useEffect(() => {
+    carService?.getCar(route.params.car.id).then((car) => {
+      console.log(car);
+      setCar(car);
+    });
+  }, [])
+
   const [car, setCar] = useState<Car>(route.params.car);
 
   const [marked, setMarkedDays] = useState<MarkedDates>({});
@@ -52,7 +59,7 @@ export default function ManageCarScreen({ route }: any) {
 
   useEffect(() => {
     updateCalendarMarkings();
-  }, [selectedPeriod]);
+  }, [selectedPeriod, car]);
 
   function handleCalenderPress(date: DateData): void {
     if (!selectedPeriod.from || !selectedPeriod.to) {
