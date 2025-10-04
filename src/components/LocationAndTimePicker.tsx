@@ -12,28 +12,20 @@ import {
 import GooglePlacesTextInput from "react-native-google-places-textinput";
 
 interface LocationAndTimeProps {
-  pickupDate?: Date;
-  dropOffDate?: Date;
+  pickupDate: Date;
+  dropOffDate: Date;
   location?: string;
   onDateChange: (pickUpDate: Date, dropOffDate: Date) => void;
-  onLocationChange: (location: string) => void;
+  onLocationChange: (place: {location: string, lat: number, long: number}) => void;
+}
+
+export type Place = {
+    location: string;
+    lat: number;
+    long: number;
 }
 
 export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
-  const [location, setLocation] = useState(props.location ?? "");
-  const [pickUpDate, setPickUpDate] = useState(props.pickupDate ?? new Date());
-  const [dropOffDate, setDropOffDate] = useState(
-    props.dropOffDate ?? new Date()
-  );
-
-  useEffect(() => {
-    props.onDateChange(pickUpDate, dropOffDate);
-  }, [pickUpDate, dropOffDate]);
-
-  useEffect(() => {
-    props.onLocationChange(location);
-  }, [location]);
-
   const formatDate = (date: Date) =>
     date.toLocaleDateString("en-GB", {
       month: "short",
@@ -63,25 +55,23 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
       case "date": {
         switch (showPicker.type) {
           case "pickup": {
-            const newDate = new Date(pickUpDate);
+            const newDate = new Date(props.pickupDate);
             newDate.setFullYear(
               selectedDate.getFullYear(),
               selectedDate.getMonth(),
               selectedDate.getDate()
             );
-            setPickUpDate(newDate);
-            if (newDate > dropOffDate) setDropOffDate(newDate);
+            props.onDateChange(newDate, newDate > props.dropOffDate ? newDate : props.dropOffDate);
             break;
           }
           case "dropoff": {
-            const newDate = new Date(dropOffDate);
+            const newDate = new Date(props.dropOffDate);
             newDate.setFullYear(
               selectedDate.getFullYear(),
               selectedDate.getMonth(),
               selectedDate.getDate()
             );
-            setDropOffDate(newDate);
-            if (newDate < pickUpDate) setPickUpDate(newDate);
+            props.onDateChange(newDate < props.pickupDate ? newDate : props.dropOffDate, newDate);
             break;
           }
         }
@@ -94,23 +84,21 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
       case "time": {
         switch (showPicker.type) {
           case "pickup": {
-            const newDate = new Date(pickUpDate);
+            const newDate = new Date(props.pickupDate);
             newDate.setHours(
               selectedDate.getHours(),
               selectedDate.getMinutes()
             );
-            setPickUpDate(newDate);
-            if (newDate > dropOffDate) setDropOffDate(newDate);
+            props.onDateChange(newDate, newDate > props.dropOffDate ? newDate : props.dropOffDate);
             break;
           }
           case "dropoff": {
-            const newDate = new Date(dropOffDate);
+            const newDate = new Date(props.dropOffDate);
             newDate.setHours(
               selectedDate.getHours(),
               selectedDate.getMinutes()
             );
-            setDropOffDate(newDate);
-            if (newDate < pickUpDate) setPickUpDate(newDate);
+            props.onDateChange(newDate < props.pickupDate ? newDate : props.dropOffDate, newDate);
             break;
           }
         }
@@ -128,10 +116,10 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
         detailsFields={["location"]}
         onPlaceSelect={(place) => {
           if (place.structuredFormat.mainText) {
-            setLocation(place.structuredFormat.mainText.text);
+            props.onLocationChange({location: place.structuredFormat.mainText.text, lat: place.details!.location.latitude, long: place.details!.location.longitude});
           }
         }}
-        value={location}
+        value={props.location}
       />
 
       <Text style={styles.label}>Pick-up</Text>
@@ -140,13 +128,13 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
           style={styles.chip}
           onPress={() => openPicker("pickup", "date")}
         >
-          <Text>{formatDate(pickUpDate)}</Text>
+          <Text>{formatDate(props.pickupDate)}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.chip}
           onPress={() => openPicker("pickup", "time")}
         >
-          <Text>{formatTime(pickUpDate)}</Text>
+          <Text>{formatTime(props.pickupDate)}</Text>
         </TouchableOpacity>
       </View>
 
@@ -156,22 +144,22 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
           style={styles.chip}
           onPress={() => openPicker("dropoff", "date")}
         >
-          <Text>{formatDate(dropOffDate)}</Text>
+          <Text>{formatDate(props.dropOffDate)}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.chip}
           onPress={() => openPicker("dropoff", "time")}
         >
-          <Text>{formatTime(dropOffDate)}</Text>
+          <Text>{formatTime(props.dropOffDate)}</Text>
         </TouchableOpacity>
       </View>
 
       {showPicker.type && (
         <DateTimePicker
-          value={showPicker.type === "pickup" ? pickUpDate : dropOffDate}
+          value={showPicker.type === "pickup" ? props.pickupDate : props.dropOffDate}
           mode={showPicker.mode}
           display={showPicker.mode === "date" ? "default" : "spinner"}
-          minimumDate={showPicker.type === "pickup" ? new Date() : pickUpDate}
+          minimumDate={showPicker.type === "pickup" ? new Date() : props.pickupDate}
           onChange={onChange}
           is24Hour
         />

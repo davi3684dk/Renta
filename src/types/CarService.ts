@@ -47,11 +47,13 @@ export type CarFilter = {
     brand?: string,
     transmission?: Car['transmission'];
     moreThan5Seats?: boolean;
-    location?: string;
     minRating?: number;
     distance?: number;
-    fromDate?: Date;
-    toDate?: Date;
+    location?: string;
+    lat?: number;
+    long?: number
+    fromDate: Date;
+    toDate: Date;
 };
 
 export type CarSort = 'Cheapest' | 'Closest' | 'Rating'

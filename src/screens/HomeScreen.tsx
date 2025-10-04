@@ -7,12 +7,12 @@ import {
   StyleSheet,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import LocationAndTimeComponent from "../components/LocationAndTimePicker";
+import LocationAndTimeComponent, { Place } from "../components/LocationAndTimePicker";
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
 
-  const [location, setLocation] = useState("Odense");
+  const [location, setLocation] = useState<Place | undefined>();
   const [pickUpDate, setPickUpDate] = useState(new Date());
   const [dropOffDate, setDropOffDate] = useState(new Date());
 
@@ -20,22 +20,22 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <View style={styles.card}>
         <LocationAndTimeComponent
-          location={location}
+          location={location?.location ?? ""}
+          pickupDate={pickUpDate}
+          dropOffDate={dropOffDate}
           onDateChange={(pickupDate: Date, dropOffDate: Date) => {
             setPickUpDate(pickupDate);
             setDropOffDate(dropOffDate);
           }}
-          onLocationChange={setLocation}
+          onLocationChange={(place) => setLocation(place)}
         />
         <TouchableOpacity
           style={styles.findBtn}
-          onPress={() =>
-            navigation.navigate("cars", {
-              fromDate: pickUpDate,
-              toDate: dropOffDate,
-              location: location,
-            })
-          }
+          onPress={() => navigation.navigate("cars", {
+            fromDate: pickUpDate,
+            toDate: dropOffDate,
+            place: location
+          })}
         >
           <Text style={styles.findBtnText}>Find Rental</Text>
         </TouchableOpacity>
