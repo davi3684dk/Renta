@@ -103,8 +103,11 @@ export default class APICarService implements CarService {
         seats: car.seats,
         owner: {
           id: car.owner?.id || 0,
-          name: car.owner?.name || "Unknown",
-          avatarUrl: car.owner?.avatarUrl || "",
+          name:
+            car.owner?.firstName && car.owner?.lastName
+              ? `${car.owner.firstName} ${car.owner.lastName}`
+              : car.owner?.username || "Unknown",
+          avatarUrl: car.owner?.avatarBase64 || "",
           rating: car.owner?.rating || 0,
           numberOfReviews: car.owner?.numberOfReviews || 0,
         },
@@ -133,7 +136,7 @@ export default class APICarService implements CarService {
 
   async getCar(id: string): Promise<Car[]> {
     try {
-      const car = await this.fetchWithAuth(`/cars:${id}`);
+      const car = await this.fetchWithAuth(`/cars/${id}`);
 
       return [
         {
@@ -150,8 +153,11 @@ export default class APICarService implements CarService {
           seats: car.seats,
           owner: {
             id: car.owner?.id || 0,
-            name: car.owner?.name || "Unknown",
-            avatarUrl: car.owner?.avatarUrl || "",
+            name:
+              car.owner?.firstName && car.owner?.lastName
+                ? `${car.owner.firstName} ${car.owner.lastName}`
+                : car.owner?.username || "Unknown",
+            avatarUrl: car.owner?.avatarBase64 || "",
             rating: car.owner?.rating || 0,
             numberOfReviews: car.owner?.numberOfReviews || 0,
           },
