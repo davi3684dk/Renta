@@ -116,11 +116,21 @@ function Navigation() {
 export default function App() {
   return (
     <AuthProvider>
-      <CarServiceContext.Provider value={new APICarService()}>
-        <NavigationContainer>
-          <Navigation />
-        </NavigationContainer>
-      </CarServiceContext.Provider>
+      <AppContent />
     </AuthProvider>
+  );
+}
+
+function AppContent() {
+  const { handleTokenExpiration } = useAuth();
+
+  return (
+    <CarServiceContext.Provider
+      value={new APICarService(handleTokenExpiration)}
+    >
+      <NavigationContainer>
+        <Navigation />
+      </NavigationContainer>
+    </CarServiceContext.Provider>
   );
 }

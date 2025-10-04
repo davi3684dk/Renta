@@ -13,6 +13,7 @@ interface AuthContextType {
     lastName: string
   ) => Promise<void>;
   logout: () => Promise<void>;
+  handleTokenExpiration: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -91,8 +92,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(null);
   };
 
+  const handleTokenExpiration = async () => {
+    console.log("Token expired - logging out user");
+    await AsyncStorage.removeItem("jwt");
+    setToken(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ token, login, register, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        login,
+        register,
+        logout,
+        handleTokenExpiration,
+        isLoading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
