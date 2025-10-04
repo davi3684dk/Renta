@@ -257,6 +257,66 @@ export default class APICarService implements CarService {
     }
   }
 
+  async getMyCars(id: number): Promise<Car[]> {
+    try {
+      console.log("Fetching cars for logged-in user");
+      const data = await this.fetchWithAuth(`/cars/owner/${id}`);
+
+      console.log("Raw data from backend:", data);
+      console.log("Number of my cars received:", data?.length || 0);
+
+      if (!data || !Array.isArray(data)) {
+        console.error("Invalid data format received:", data);
+        return [];
+      }
+
+      const transformedCars = data.map((car: any) => ({
+        id: car.id.toString(),
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        pricePerKm: car.pricePerKm,
+        location: car.location,
+        imageUrl: car.imageBase64 || "",
+        carType: car.carType,
+        fuelType: car.fuelType,
+        transmission: car.transmission,
+        seats: car.seats,
+        owner: {
+          id: car.owner?.id || 0,
+          name:
+            car.owner?.firstName && car.owner?.lastName
+              ? `${car.owner.firstName} ${car.owner.lastName}`
+              : car.owner?.username || "Unknown",
+          avatarUrl:
+            car.owner?.avatarBase64 ||
+            "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
+          rating: car.owner?.rating || 0,
+          numberOfReviews: car.owner?.numberOfReviews || 0,
+        },
+        bookings:
+          car.bookings?.map((b: any) => ({
+            id: b.id,
+            from: new Date(b.from),
+            to: new Date(b.to),
+          })) || [],
+        availability:
+          car.availability?.map((a: any) => ({
+            id: a.id,
+            from: new Date(a.from),
+            to: new Date(a.to),
+          })) || [],
+      }));
+
+      console.log("Transformed my cars:", transformedCars.length);
+      return transformedCars;
+    } catch (error) {
+      console.error("Error fetching my cars:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+      return [];
+    }
+  }
+
   async addCar(car: NewCarBody): Promise<Car> {
     try {
       console.log(car);

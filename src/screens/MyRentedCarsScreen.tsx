@@ -39,7 +39,6 @@ const getUserIdFromToken = async (): Promise<number | null> => {
 export default function MyRentedCarsScreen() {
   const navigation = useNavigation<any>();
   const carService = useContext(CarServiceContext);
-
   const [cars, setCars] = useState<Car[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -53,11 +52,11 @@ export default function MyRentedCarsScreen() {
     try {
       setIsLoading(true);
       if (carService) {
+        console.log("Loading cars for logged-in user");
         const userId = await getUserIdFromToken();
 
         if (userId) {
-          console.log("Loading cars for user ID:", userId);
-          const myCars = await carService.getCarsByOwner(userId);
+          const myCars = await carService.getMyCars(userId);
           setCars(myCars);
         } else {
           console.error("Could not get user ID from token");
@@ -65,7 +64,7 @@ export default function MyRentedCarsScreen() {
         }
       }
     } catch (error) {
-      console.error("Error loading cars:", error);
+      console.error("Error loading my cars:", error);
       setCars([]);
     } finally {
       setIsLoading(false);
@@ -97,7 +96,6 @@ export default function MyRentedCarsScreen() {
             </TouchableOpacity>
           </View>
         )}
-
         {cars.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>

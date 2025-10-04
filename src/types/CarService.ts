@@ -1,21 +1,11 @@
 import { Car } from "./Car";
 
 export default interface CarService {
-  /**
-   * GetCars
-   *
-   * Returns a list of cars using filters defined
-   */
   getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]>;
 
   getCar(id: string): Promise<Car[]>;
 
-  /**
-   * GetCarsByOwner
-   *
-   * Returns a list of cars owned by a specific user
-   */
-  getCarsByOwner(ownerId: number): Promise<Car[]>;
+  getMyCars(id: number): Promise<Car[]>;
 
   addCar(car: NewCarBody): Promise<Car>;
 
