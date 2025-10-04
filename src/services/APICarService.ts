@@ -96,7 +96,7 @@ export default class APICarService implements CarService {
         year: car.year,
         pricePerKm: car.pricePerKm,
         location: car.location,
-        imageUrl: car.imageUrl || "",
+        imageUrl: car.imageBase64 || "",
         carType: car.carType,
         fuelType: car.fuelType,
         transmission: car.transmission,
@@ -107,7 +107,7 @@ export default class APICarService implements CarService {
             car.owner?.firstName && car.owner?.lastName
               ? `${car.owner.firstName} ${car.owner.lastName}`
               : car.owner?.username || "Unknown",
-          avatarUrl: car.owner?.avatarBase64 || "",
+          avatarUrl: car.owner?.avatarBase64 || "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
           rating: car.owner?.rating || 0,
           numberOfReviews: car.owner?.numberOfReviews || 0,
         },
@@ -146,7 +146,7 @@ export default class APICarService implements CarService {
           year: car.year,
           pricePerKm: car.pricePerKm,
           location: car.location,
-          imageUrl: car.imageUrl || "",
+          imageUrl: car.imageBase64 || "",
           carType: car.carType,
           fuelType: car.fuelType,
           transmission: car.transmission,
@@ -183,6 +183,7 @@ export default class APICarService implements CarService {
 
   async addCar(car: NewCarBody): Promise<Car> {
     try {
+      console.log(car);
       // Transform frontend format to backend format
       const carData = {
         make: car.make,
@@ -194,8 +195,7 @@ export default class APICarService implements CarService {
         carType: car.carType,
         fuelType: car.fuelType,
         transmission: car.transmission,
-        seats: car.seats,
-        ownerId: parseInt(car.ownerId),
+        seats: car.seats
       };
 
       const result = await this.fetchWithAuth("/cars", {
@@ -210,7 +210,7 @@ export default class APICarService implements CarService {
         year: result.year,
         pricePerKm: result.pricePerKm,
         location: result.location,
-        imageUrl: result.imageUrl || "",
+        imageUrl: result.imageBase64 || "",
         carType: result.carType,
         fuelType: result.fuelType,
         transmission: result.transmission,
@@ -248,11 +248,12 @@ export default class APICarService implements CarService {
     toDate: Date
   ): Promise<void> {
     try {
-      await this.fetchWithAuth(`/cars/${carId}/availability`, {
+      await this.fetchWithAuth(`/car-availability`, {
         method: "POST",
         body: JSON.stringify({
-          from: fromDate.toISOString(),
-          to: toDate.toISOString(),
+          startDate: fromDate.toISOString(),
+          endDate: toDate.toISOString(),
+          carId: carId
         }),
       });
     } catch (error) {

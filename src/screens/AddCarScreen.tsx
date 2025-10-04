@@ -76,7 +76,9 @@ export default function AddCarScreen() {
       "transmission",
       "fuelType",
       "seats",
-      "imageBase64"
+      "imageBase64",
+      "lat",
+      "long"
     ];
 
     // Check missing fields
@@ -94,25 +96,31 @@ export default function AddCarScreen() {
 
     if (carService && car) {
       setLoading(true);
-      carService.addCar(
-        {
-          make: car.make!,
-          model: car.model!,
-          year: Number.parseInt(car.year!),
-          location: car.location!,
-          carType: car.carType!,
-          transmission: car.transmission!,
-          fuelType: car.fuelType!,
-          seats: Number.parseInt(car.seats!),
-          price: Number.parseFloat(car.price!),
-          image: car.imageBase64!,
-          ownerId: "1" //TODO, use AuthContext to get UserID
-        }
-      ).then((car) => {
+      try {
+        carService.addCar(
+          {
+            make: car.make!,
+            model: car.model!,
+            year: Number.parseInt(car.year!),
+            location: car.location!,
+            carType: car.carType!,
+            transmission: car.transmission!,
+            fuelType: car.fuelType!,
+            seats: Number.parseInt(car.seats!),
+            price: Number.parseFloat(car.price!),
+            image: "data:image/jpeg;base64," + car.imageBase64!,
+            lat: car.lat!,
+            long: car.long!
+          }
+        ).then((car) => {
+          setLoading(false);
+          navigation.navigate("manageCar", car);
+          //TODO navigate to car page
+        });
+      } catch (e) {
+        console.log(e)
         setLoading(false);
-        navigation.navigate("manageCar", car);
-        //TODO navigate to car page
-      });
+      }
     }
   }
 
@@ -125,7 +133,7 @@ export default function AddCarScreen() {
           </View>
         }
         <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
-          <ScrollView style={{flex: 1}} contentContainerStyle={styles.main}>
+          <ScrollView style={{flex: 1}} contentContainerStyle={styles.main} keyboardShouldPersistTaps="handled">
             <View>
               <Text>Car Brand</Text>
               <TextInput style={styles.input} value={car?.make} onChangeText={(text) => { setCar(prev => ({ ...prev, make: text })) }} />
@@ -148,6 +156,7 @@ export default function AddCarScreen() {
                 apiKey={"AIzaSyD4u6t9lGaCT9nAh74ILpgLdFNFbj8MV7c"}
                 fetchDetails={true}
                 detailsFields={['location']}
+                scrollEnabled={false}
                 onPlaceSelect={(place) => {
                   console.log(place); 
                   setCar(prev => ({
