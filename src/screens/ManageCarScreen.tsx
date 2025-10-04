@@ -1,57 +1,73 @@
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Car } from "../types/Car";
-import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
+import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import { DateData, MarkedDates } from "react-native-calendars/src/types";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { useContext, useEffect, useState } from "react";
 import { CarServiceContext } from "../services/CarServiceContext";
+import { useNavigation } from "@react-navigation/native";
 
 function getDateString(date: Date) {
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
 
-  let dateString = `${year}-`
+  let dateString = `${year}-`;
   if (month < 10) {
-    dateString += `0${month}-`
+    dateString += `0${month}-`;
   } else {
-    dateString += `${month}-`
+    dateString += `${month}-`;
   }
   if (day < 10) {
-    dateString += `0${day}`
+    dateString += `0${day}`;
   } else {
-    dateString += day
+    dateString += day;
   }
 
-  return dateString
+  return dateString;
 }
 
-const day = (1000 * 60 * 60 * 24);
+const day = 1000 * 60 * 60 * 24;
 
 export default function ManageCarScreen({ route }: any) {
   const carService = useContext(CarServiceContext);
+  const navigation = useNavigation<any>();
 
   const [car, setCar] = useState<Car>(route.params.car);
 
   const [marked, setMarkedDays] = useState<MarkedDates>({});
 
-  const [selectedPeriod, setSelectedPeriod] = useState<{ from?: DateData, to?: DateData }>({});
+  const [selectedPeriod, setSelectedPeriod] = useState<{
+    from?: DateData;
+    to?: DateData;
+  }>({});
 
   useEffect(() => {
     updateCalendarMarkings();
-  }, [selectedPeriod])
+  }, [selectedPeriod]);
 
   function handleCalenderPress(date: DateData): void {
     if (!selectedPeriod.from || !selectedPeriod.to) {
-      setSelectedPeriod(prev => ({ to: date, from: date }));
+      setSelectedPeriod((prev) => ({ to: date, from: date }));
     } else if (date.timestamp > selectedPeriod.to.timestamp) {
-      setSelectedPeriod(prev => ({ ...prev, to: date }));
+      setSelectedPeriod((prev) => ({ ...prev, to: date }));
     } else if (date.timestamp < selectedPeriod.from.timestamp) {
-      setSelectedPeriod(prev => ({ ...prev, from: date }));
+      setSelectedPeriod((prev) => ({ ...prev, from: date }));
     } else if (date.timestamp > selectedPeriod.from.timestamp) {
-      setSelectedPeriod(prev => ({ ...prev, from: date }));
-    } else if (date.timestamp === selectedPeriod.from.timestamp || date.timestamp === selectedPeriod.to.timestamp) {
-      setSelectedPeriod(prev => ({ to: date, from: date }));
+      setSelectedPeriod((prev) => ({ ...prev, from: date }));
+    } else if (
+      date.timestamp === selectedPeriod.from.timestamp ||
+      date.timestamp === selectedPeriod.to.timestamp
+    ) {
+      setSelectedPeriod((prev) => ({ to: date, from: date }));
     }
   }
 
@@ -59,19 +75,19 @@ export default function ManageCarScreen({ route }: any) {
     const markedDates: MarkedDates = {};
 
     car.availability.map((item) => {
-      const color = "#1a751aff"
+      const color = "#1a751aff";
 
       markedDates[getDateString(item.from)] = {
         startingDay: true,
         color: color,
-        selected: true
+        selected: true,
       };
 
       let date = new Date(item.from.getTime() + day);
       while (date < item.to) {
         markedDates[getDateString(date)] = {
           color: color,
-          selected: true
+          selected: true,
         };
 
         date = new Date(date.getTime() + day);
@@ -80,23 +96,23 @@ export default function ManageCarScreen({ route }: any) {
       markedDates[getDateString(item.to)] = {
         endingDay: true,
         color: color,
-        selected: true
+        selected: true,
       };
     });
 
     car.bookings.map((item) => {
-      const color = "#ff4040ff"
+      const color = "#ff4040ff";
 
       markedDates[getDateString(item.from)] = {
         color: color,
-        selected: true
+        selected: true,
       };
 
       let date = new Date(item.from.getTime() + day);
       while (date < item.to) {
         markedDates[getDateString(date)] = {
           color: color,
-          selected: true
+          selected: true,
         };
 
         date = new Date(date.getTime() + day);
@@ -104,24 +120,24 @@ export default function ManageCarScreen({ route }: any) {
 
       markedDates[getDateString(item.to)] = {
         color: color,
-        selected: true
+        selected: true,
       };
     });
 
     if (selectedPeriod.from && selectedPeriod.to) {
-      const color = "#6baafdff"
+      const color = "#6baafdff";
 
       markedDates[selectedPeriod.from.dateString] = {
         color: color,
         selected: true,
-        startingDay: true
+        startingDay: true,
       };
 
       let date = new Date(selectedPeriod.from.timestamp + day);
       while (date.getTime() < selectedPeriod.to.timestamp) {
         markedDates[getDateString(date)] = {
           color: color,
-          selected: true
+          selected: true,
         };
 
         date = new Date(date.getTime() + day);
@@ -131,7 +147,8 @@ export default function ManageCarScreen({ route }: any) {
         color: color,
         selected: true,
         endingDay: true,
-        startingDay: selectedPeriod.from.timestamp === selectedPeriod.to.timestamp
+        startingDay:
+          selectedPeriod.from.timestamp === selectedPeriod.to.timestamp,
       };
     }
 
@@ -150,64 +167,90 @@ export default function ManageCarScreen({ route }: any) {
               </TouchableOpacity>
             </View>
 
-            <Text style={{ fontSize: 24, fontWeight: "bold" }}>{car.make} {car.model}</Text>
+            <Text style={{ fontSize: 24, fontWeight: "bold" }}>
+              {car.make} {car.model}
+            </Text>
 
             <Text>Availability: </Text>
             <Calendar
               markedDates={marked}
               markingType="period"
               theme={{
-                todayTextColor: '#00adf5',
-                todayBackgroundColor: '#00acf55d',
+                todayTextColor: "#00adf5",
+                todayBackgroundColor: "#00acf55d",
               }}
               onDayPress={handleCalenderPress}
-            >
-
-            </Calendar>
+            ></Calendar>
 
             <View>
               <TouchableOpacity
                 style={styles.addAvailability}
                 onPress={() => {
-                  if (!selectedPeriod.from || !selectedPeriod.to)
-                    return;
+                  if (!selectedPeriod.from || !selectedPeriod.to) return;
 
                   car.availability.push({
                     from: new Date(selectedPeriod.from.timestamp),
                     to: new Date(selectedPeriod.to.timestamp),
-                    id: 1
+                    id: 1,
                   });
-                  carService?.addAvailability(car.id.toString(), new Date(selectedPeriod.from.timestamp), new Date(selectedPeriod.to.timestamp)).then((value) => {
-                    setSelectedPeriod({});
-                    setCar(car);
-                  }).catch((reason) => {
-                    alert(reason);
-                  });
-                }}>
-                <Text style={{ color: "white", fontWeight: "bold" }}>Mark selected timeframe as available</Text>
+                  carService
+                    ?.addAvailability(
+                      car.id.toString(),
+                      new Date(selectedPeriod.from.timestamp),
+                      new Date(selectedPeriod.to.timestamp)
+                    )
+                    .then((value) => {
+                      setSelectedPeriod({});
+                      setCar(car);
+                      // Navigate to the rented cars screen after marking availability
+                      navigation.navigate("myRentedCars");
+                    })
+                    .catch((reason) => {
+                      alert(reason);
+                    });
+                }}
+              >
+                <Text style={{ color: "white", fontWeight: "bold" }}>
+                  Mark selected timeframe as available
+                </Text>
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity
               style={styles.removeBtn}
-              onPress={() => { Alert.alert("Remove Car", "Are you sure you want to remove the car?", [{ text: "Yes", onPress: () => {carService?.removeCar(car.id.toString())} }, { text: "Cancel" }]) }}>
+              onPress={() => {
+                Alert.alert(
+                  "Remove Car",
+                  "Are you sure you want to remove the car?",
+                  [
+                    {
+                      text: "Yes",
+                      onPress: () => {
+                        carService?.removeCar(car.id.toString());
+                      },
+                    },
+                    { text: "Cancel" },
+                  ]
+                );
+              }}
+            >
               <Text style={{ color: "white", fontWeight: "bold" }}>Remove</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   image: {
     width: "100%",
-    aspectRatio: 4 / 3
+    aspectRatio: 4 / 3,
   },
   content: {
     padding: 20,
-    gap: 10
+    gap: 10,
   },
   removeBtn: {
     backgroundColor: "rgba(221, 0, 0, 1)",
@@ -216,7 +259,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
-    marginTop: 50
+    marginTop: 50,
   },
   editBtn: {
     backgroundColor: "rgba(0, 221, 0, 1)",
@@ -224,7 +267,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    flex: 1
+    flex: 1,
   },
   addAvailability: {
     backgroundColor: "rgba(0, 221, 0, 1)",
@@ -232,6 +275,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    flex: 1
-  }
+    flex: 1,
+  },
 });
