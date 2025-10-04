@@ -110,7 +110,7 @@ function Navigation() {
 export default function App() {
   return (
     <AuthProvider>
-      <CarServiceContext.Provider value={new DummyCarService()}>
+      <CarServiceContext.Provider value={new APICarService()}>
         <NavigationContainer>
           <Navigation />
         </NavigationContainer>
