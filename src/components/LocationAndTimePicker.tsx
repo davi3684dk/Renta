@@ -71,7 +71,7 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
               selectedDate.getMonth(),
               selectedDate.getDate()
             );
-            props.onDateChange(newDate < props.pickupDate ? newDate : props.dropOffDate, newDate);
+            props.onDateChange(newDate < props.pickupDate ? newDate : props.pickupDate, newDate);
             break;
           }
         }
@@ -98,7 +98,7 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
               selectedDate.getHours(),
               selectedDate.getMinutes()
             );
-            props.onDateChange(newDate < props.pickupDate ? newDate : props.dropOffDate, newDate);
+            props.onDateChange(newDate < props.pickupDate ? newDate : props.pickupDate, newDate);
             break;
           }
         }

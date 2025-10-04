@@ -3,7 +3,7 @@ import { Car } from "./Car";
 export default interface CarService {
   getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]>;
 
-  getCar(id: string): Promise<Car[]>;
+  getCar(id: string): Promise<Car>;
 
   getMyCars(id: number): Promise<Car[]>;
 
