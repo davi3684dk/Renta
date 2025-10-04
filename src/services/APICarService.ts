@@ -8,6 +8,11 @@ import CarService, {
 
 export default class APICarService implements CarService {
   API_URL = "http://10.0.0.200:3000";
+  private onTokenExpired?: () => void;
+
+  constructor(onTokenExpired?: () => void) {
+    this.onTokenExpired = onTokenExpired;
+  }
 
   private async fetchWithAuth(
     endpoint: string,
@@ -32,6 +37,15 @@ export default class APICarService implements CarService {
 
       console.log("Response status:", response.status);
       console.log("Response ok:", response.ok);
+
+      // Check for 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        console.error("401 Unauthorized - Token expired");
+        if (this.onTokenExpired) {
+          this.onTokenExpired();
+        }
+        throw new Error("Authentication failed. Please login again.");
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -72,7 +86,8 @@ export default class APICarService implements CarService {
         if (filter.moreThan5Seats) params.minSeats = 6;
         if (filter.lat !== undefined) params.userLat = filter.lat;
         if (filter.long !== undefined) params.userLng = filter.long;
-        params.maxDistance = filter.distance !== undefined ? filter.distance : 10;
+        params.maxDistance =
+          filter.distance !== undefined ? filter.distance : 10;
       }
 
       const queryString = new URLSearchParams(params).toString();
@@ -109,7 +124,9 @@ export default class APICarService implements CarService {
             car.owner?.firstName && car.owner?.lastName
               ? `${car.owner.firstName} ${car.owner.lastName}`
               : car.owner?.username || "Unknown",
-          avatarUrl: car.owner?.avatarBase64 || "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
+          avatarUrl:
+            car.owner?.avatarBase64 ||
+            "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
           rating: car.owner?.rating || 0,
           numberOfReviews: car.owner?.numberOfReviews || 0,
         },
@@ -199,7 +216,7 @@ export default class APICarService implements CarService {
         transmission: car.transmission,
         seats: car.seats,
         latitude: car.lat,
-        longitude: car.long
+        longitude: car.long,
       };
 
       const result = await this.fetchWithAuth("/cars", {
@@ -257,7 +274,7 @@ export default class APICarService implements CarService {
         body: JSON.stringify({
           startDate: fromDate.toISOString(),
           endDate: toDate.toISOString(),
-          carId: carId
+          carId: carId,
         }),
       });
     } catch (error) {
