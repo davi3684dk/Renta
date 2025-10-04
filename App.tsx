@@ -13,6 +13,7 @@ import { TouchableOpacity, ActivityIndicator, View } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import AddCarScreen from "./src/screens/AddCarScreen";
 import ManageCarScreen from "./src/screens/ManageCarScreen";
+import MyRentedCarsScreen from "./src/screens/MyRentedCarsScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import RegisterScreen from "./src/screens/RegisterScreen";
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
@@ -58,6 +59,11 @@ function MyStack() {
         name="cars"
         component={CarsScreen}
         options={{ headerTitle: "Find Cars" }}
+      />
+      <Stack.Screen
+        name="myRentedCars"
+        component={MyRentedCarsScreen}
+        options={{ headerTitle: "My Rented Cars" }}
       />
       <Stack.Screen
         name="addCar"

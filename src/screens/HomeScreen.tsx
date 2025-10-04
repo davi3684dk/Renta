@@ -45,7 +45,7 @@ export default function HomeScreen() {
         <Text style={{ marginBottom: 8 }}>Rent your car</Text>
         <TouchableOpacity
           style={styles.circleBtn}
-          onPress={() => navigation.navigate("addCar")}
+          onPress={() => navigation.navigate("myRentedCars")}
         >
           <Text style={{ color: "white", fontSize: 18 }}>{">"}</Text>
         </TouchableOpacity>
@@ -82,5 +82,5 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
-  }
+  },
 });
