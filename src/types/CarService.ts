@@ -35,7 +35,8 @@ export type NewCarBody = {
   seats: number;
   price: number;
   image: string;
-  ownerId: string;
+  lat: number;
+  long: number;
 }
 
 export type CarFilter = {

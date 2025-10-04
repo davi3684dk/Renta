@@ -177,10 +177,12 @@ export default function ManageCarScreen({ route }: any) {
                     to: new Date(selectedPeriod.to.timestamp),
                     id: 1
                   });
-                  carService?.addAvailability(car.id.toString(), new Date(selectedPeriod.from.timestamp), new Date(selectedPeriod.to.timestamp))
-
-                  setSelectedPeriod({});
-                  setCar(car);
+                  carService?.addAvailability(car.id.toString(), new Date(selectedPeriod.from.timestamp), new Date(selectedPeriod.to.timestamp)).then((value) => {
+                    setSelectedPeriod({});
+                    setCar(car);
+                  }).catch((reason) => {
+                    alert(reason);
+                  });
                 }}>
                 <Text style={{ color: "white", fontWeight: "bold" }}>Mark selected timeframe as available</Text>
               </TouchableOpacity>
