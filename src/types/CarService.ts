@@ -17,6 +17,10 @@ export default interface CarService {
     addAvailability(carId: string, fromDate: Date, toDate: Date): Promise<void>;
 
     removeAvailability(id: string): Promise<void>;
+
+    addBooking(carId: string, fromDate: Date, toDate: Date): Promise<void>;
+
+    removeBooking(bookingId: string): Promise<void>;
 }
 
 
