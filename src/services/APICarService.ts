@@ -323,11 +323,12 @@ export default class APICarService implements CarService {
 
   async addBooking(carId: string, fromDate: Date, toDate: Date): Promise<void> {
     try {
-      await this.fetchWithAuth(`/cars/${carId}/bookings`, {
+      await this.fetchWithAuth(`/car-bookings`, {
         method: "POST",
         body: JSON.stringify({
-          from: fromDate.toISOString(),
-          to: toDate.toISOString(),
+          carId: carId,
+          startDate: fromDate.toISOString(),
+          endDate: toDate.toISOString(),
         }),
       });
     } catch (error) {

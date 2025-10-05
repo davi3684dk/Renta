@@ -301,7 +301,7 @@ export default function CarsScreen({ route }: any) {
         data={cars}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.carsContainer}
-        renderItem={({ item }) => <CarCard car={item as Car} onPress={(car) => navigation.navigate("DetailScreen", { car })} />}
+        renderItem={({ item }) => <CarCard car={item as Car} onPress={(car) => navigation.navigate("DetailScreen", { car, fromDate: filters.fromDate, toDate: filters.toDate })} />}
       ></FlatList>
 
       <Modal
