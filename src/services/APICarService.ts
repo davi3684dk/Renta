@@ -73,8 +73,8 @@ export default class APICarService implements CarService {
           year: car.year,
           pricePerKm: car.pricePerKm,
           location: car.location,
-          lat: car.latitude,
-          lon: car.longitude,
+          lat: Number.parseFloat(car.latitude),
+          lon: Number.parseFloat(car.longitude),
           imageUrl: car.imageBase64 || "",
           carType: car.carType,
           fuelType: car.fuelType,
@@ -130,9 +130,8 @@ export default class APICarService implements CarService {
         params.maxDistance =
           filter.distance !== undefined ? filter.distance : 10;
         if (sort !== undefined) params.sort = sort;
+        if (filter.page !== undefined) params.page = filter.page;
       }
-
-      console.log(params);
 
       const queryString = new URLSearchParams(params).toString();
       const endpoint = queryString ? `/cars?${queryString}` : "/cars";
@@ -141,7 +140,6 @@ export default class APICarService implements CarService {
 
       const data = await this.fetchWithAuth(endpoint);
 
-      console.log("Raw data from backend:", data);
       console.log("Number of cars received:", data?.length || 0);
 
       if (!data || !Array.isArray(data)) {
@@ -216,6 +214,23 @@ export default class APICarService implements CarService {
       console.error("Error fetching my cars:", error);
       console.error("Error details:", JSON.stringify(error, null, 2));
       return [];
+    }
+  }
+
+  async getReviewDistribution(userId: number): Promise<Record<number, number>> {
+    try {
+      const data = this.fetchWithAuth(`/reviews/user/${userId}/distribution`);
+
+      if (!data) {
+        console.error("Invalid data format received:", data);
+        return {};
+      }
+
+      return data;
+
+    } catch (error) {
+      console.error("Error removing booking:", error);
+      throw new Error("Failed to remove booking");
     }
   }
 
@@ -323,11 +338,12 @@ export default class APICarService implements CarService {
 
   async addBooking(carId: string, fromDate: Date, toDate: Date): Promise<void> {
     try {
-      await this.fetchWithAuth(`/cars/${carId}/bookings`, {
+      await this.fetchWithAuth(`/car-bookings`, {
         method: "POST",
         body: JSON.stringify({
-          from: fromDate.toISOString(),
-          to: toDate.toISOString(),
+          carId: carId,
+          startDate: fromDate.toISOString(),
+          endDate: toDate.toISOString(),
         }),
       });
     } catch (error) {

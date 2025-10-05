@@ -114,7 +114,7 @@ export default function MyRentedCarsScreen() {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => handleCarPress(item)}>
-                <CarCard car={item} managing={true} />
+                <CarCard car={item} managing={true} onPress={(car) => {}}/>
               </TouchableOpacity>
             )}
             contentContainerStyle={styles.listContainer}

@@ -16,6 +16,7 @@ import MyRentedCarsScreen from "./src/screens/MyRentedCarsScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import RegisterScreen from "./src/screens/RegisterScreen";
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
+import DetailScreen from "./src/screens/DetailScreen";
 
 const Stack = createStackNavigator();
 
@@ -40,60 +41,22 @@ function MyStack() {
           fontWeight: "bold",
         },
         headerRight: () => (
-          <TouchableOpacity
-            style={{ paddingRight: 20 }}
-            onPress={() => navigation.navigate("settings")}
-          >
+          <TouchableOpacity style={{ paddingRight: 20 }} onPress={() => navigation.navigate("settings")}>
             <Entypo name="cog" size={24} color="black" />
           </TouchableOpacity>
         ),
       }}
     >
-      <Stack.Screen
-        name="home"
-        component={HomeScreen}
-        options={{ headerTitle: "Home" }}
-      />
-      <Stack.Screen
-        name="cars"
-        component={CarsScreen}
-        options={{ headerTitle: "Find Cars" }}
-      />
-      <Stack.Screen
-        name="myRentedCars"
-        component={MyRentedCarsScreen}
-        options={{ headerTitle: "My Cars" }}
-      />
-      <Stack.Screen
-        name="addCar"
-        component={AddCarScreen}
-        options={{ headerTitle: "Add Car" }}
-      />
-      <Stack.Screen
-        name="manageCar"
-        component={ManageCarScreen}
-        options={{ headerTitle: "Manage Car" }}
-      />
-      <Stack.Screen
-        name="settings"
-        component={SettingsScreen}
-        options={{ headerTitle: "Settings" }}
-      />
-      <Stack.Screen
-        name="permission"
-        component={AppPermissions}
-        options={{ headerTitle: "App Permissions" }}
-      />
-      <Stack.Screen
-        name="customization"
-        component={Customization}
-        options={{ headerTitle: "Sound & Customization" }}
-      />
-      <Stack.Screen
-        name="profilebilling"
-        component={ProfileBilling}
-        options={{ headerTitle: "Profile & Billing" }}
-      />
+      <Stack.Screen name="home" component={HomeScreen} options={{ headerTitle: "Home" }} />
+      <Stack.Screen name="cars" component={CarsScreen} options={{ headerTitle: "Find Cars" }} />
+      <Stack.Screen name="myRentedCars" component={MyRentedCarsScreen} options={{ headerTitle: "My Cars" }} />
+      <Stack.Screen name="addCar" component={AddCarScreen} options={{ headerTitle: "Add Car" }} />
+      <Stack.Screen name="manageCar" component={ManageCarScreen} options={{ headerTitle: "Manage Car" }} />
+      <Stack.Screen name="settings" component={SettingsScreen} options={{ headerTitle: "Settings" }} />
+      <Stack.Screen name="permission" component={AppPermissions} options={{ headerTitle: "App Permissions" }} />
+      <Stack.Screen name="customization" component={Customization} options={{ headerTitle: "Sound & Customization" }} />
+      <Stack.Screen name="profilebilling" component={ProfileBilling} options={{ headerTitle: "Profile & Billing" }} />
+      <Stack.Screen name="DetailScreen" component={DetailScreen} options={{ headerTitle: "Car Details" }} />
     </Stack.Navigator>
   );
 }
@@ -124,9 +87,7 @@ function AppContent() {
   const { handleTokenExpiration } = useAuth();
 
   return (
-    <CarServiceContext.Provider
-      value={new APICarService(handleTokenExpiration)}
-    >
+    <CarServiceContext.Provider value={new APICarService(handleTokenExpiration)}>
       <NavigationContainer>
         <Navigation />
       </NavigationContainer>

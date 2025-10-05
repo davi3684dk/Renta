@@ -144,7 +144,7 @@ export default function AddCarScreen({route}: any) {
             carParams
           ).then((car) => {
             setLoading(false);
-            navigation.popTo("myRentedCars");
+            navigation.goBack();
           }).catch((e) => {
             setLoading(false);
             alert(e.message)
@@ -154,7 +154,7 @@ export default function AddCarScreen({route}: any) {
             carParams
           ).then((car) => {
             setLoading(false);
-            navigation.popTo("myRentedCars");
+            navigation.goBack();
           }).catch((e) => {
             setLoading(false);
             alert(e.message)

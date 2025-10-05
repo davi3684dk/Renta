@@ -20,7 +20,7 @@ import {
 import CarCard from "../components/CarCard";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import MultiSelectChips from "../components/MultiSelectChips";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import RadioGroup from "react-native-radio-buttons-group";
@@ -33,7 +33,7 @@ export default function CarsScreen({ route }: any) {
 
   const carService = useContext(CarServiceContext);
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
 
   const [cars, setCars] = useState<Car[]>([]);
@@ -41,6 +41,11 @@ export default function CarsScreen({ route }: any) {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingFilter, setEditingFilter] = useState<string | null>(null);
   const [sorting, setSorting] = useState<CarSort>();
+  const [page, setPage] = useState(0);
+
+  const [mounted, setMounted] = useState(false)
+
+  const flatListRef = useRef<FlatList>(null);
 
   const { fromDate, toDate, place } = route.params;
 
@@ -53,8 +58,16 @@ export default function CarsScreen({ route }: any) {
   });
 
   useEffect(() => {
+    setMounted(true);
+  }, [])
+
+  useEffect(() => {
+    if (!mounted)
+      return;
+
     if (carService) {
       carService.getCars(filters, sorting).then((c) => {
+        flatListRef.current?.scrollToOffset({animated: false, offset: 0});
         setCars(c);
         const b = [...new Set(c.map((car) => car.make))];
         if (brands.length < b.length) {
@@ -63,6 +76,15 @@ export default function CarsScreen({ route }: any) {
       });
     }
   }, [sorting, filters]);
+
+  useEffect(() => {
+    if (!mounted)
+      return;
+
+    carService?.getCars({...filters, page: page}).then(data => {
+      setCars(prev => [...prev, ...data]);
+    })
+  }, [page])
 
   const updateFilter = (type: string, value: any) => {
     if (Array.isArray(value) && value.length === 0) value = undefined;
@@ -299,11 +321,15 @@ export default function CarsScreen({ route }: any) {
         </ScrollView>
       </View>
       <FlatList
+        ref={flatListRef}
         style={styles.carList}
         data={cars}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.carsContainer}
-        renderItem={({ item }) => <CarCard car={item as Car} />}
+        renderItem={({ item }) => <CarCard car={item as Car} onPress={(car) => navigation.navigate("DetailScreen", { car, fromDate: filters.fromDate, toDate: filters.toDate })} />}
+        onEndReached={() => {
+          setPage(page + 1);
+        }}
       ></FlatList>
 
       <Modal
