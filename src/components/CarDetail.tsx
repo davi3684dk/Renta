@@ -2,6 +2,7 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import { Car } from "../types/Car";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
+import { PROVIDER_GOOGLE } from "react-native-maps";
 
 interface CarProps {
   car: Car;
@@ -109,21 +110,22 @@ export default function CarDetail({ car }: CarProps) {
       {/* Pick-up & Drop-off Location with Map */}
       <View style={styles.paragraphContainer}>
         <Text style={styles.paragraphTitle}>Pick-up & Drop-off Location</Text>
-        {/*<MapView
+        <MapView
           style={styles.map}
+          provider={PROVIDER_GOOGLE}
           initialRegion={{
-            latitude: car.longitude,
-            longitude: car.latitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitude: car.lat ?? 0,
+            longitude: car.lon ?? 0,
+            latitudeDelta: 0.0522,
+            longitudeDelta: 0.0221,
           }}
         >
           <Marker
-            coordinate={{ latitude: car.longitude, longitude: car.latitude }}
+            coordinate={{ latitude: car.lat, longitude: car.lon }}
             title={"Pick-up Location"}
             description={car.location}
           />
-        </MapView>*/}
+        </MapView>
       </View>
 
       {/* Benefits Included section*/}
@@ -242,7 +244,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     borderRadius: 10,
-    padding: 10,
+    padding: 20,
     width: "100%",
   },
   paragraphContainer: {
