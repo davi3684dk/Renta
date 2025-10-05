@@ -169,7 +169,9 @@ export default function ManageCarScreen({ route }: any) {
           <Image style={styles.image} source={{ uri: car.imageUrl }}></Image>
           <View style={styles.content}>
             <View style={{ flexDirection: "row" }}>
-              <TouchableOpacity style={styles.editBtn}>
+              <TouchableOpacity 
+                style={styles.editBtn}
+                onPress={() => navigation.navigate("addCar", {carId: car.id})}>
                 <Text style={{ color: "white", fontWeight: "bold" }}>Edit</Text>
               </TouchableOpacity>
             </View>

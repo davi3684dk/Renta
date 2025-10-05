@@ -9,6 +9,8 @@ export default interface CarService {
 
   addCar(car: NewCarBody): Promise<Car>;
 
+  updateCar(id: number, car: NewCarBody): Promise<Car>;
+
   removeCar(id: string): Promise<void>;
 
   addAvailability(carId: string, fromDate: Date, toDate: Date): Promise<void>;

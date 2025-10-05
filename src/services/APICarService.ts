@@ -89,7 +89,10 @@ export default class APICarService implements CarService {
         if (filter.brand !== undefined) params.makes = filter.brand
         params.maxDistance =
           filter.distance !== undefined ? filter.distance : 10;
+        if (sort !== undefined) params.sort = sort;
       }
+
+      console.log(params);
 
       const queryString = new URLSearchParams(params).toString();
       const endpoint = queryString ? `/cars?${queryString}` : "/cars";
@@ -340,6 +343,57 @@ export default class APICarService implements CarService {
 
       const result = await this.fetchWithAuth("/cars", {
         method: "POST",
+        body: JSON.stringify(carData),
+      });
+
+      return {
+        id: result.id.toString(),
+        make: result.make,
+        model: result.model,
+        year: result.year,
+        pricePerKm: result.pricePerKm,
+        location: result.location,
+        imageUrl: result.imageBase64 || "",
+        carType: result.carType,
+        fuelType: result.fuelType,
+        transmission: result.transmission,
+        seats: result.seats,
+        owner: {
+          id: result.owner?.id || 0,
+          name: result.owner?.name || "Unknown",
+          avatarUrl: result.owner?.avatarUrl || "",
+          rating: result.owner?.rating || 0,
+          numberOfReviews: result.owner?.numberOfReviews || 0,
+        },
+        bookings: [],
+        availability: [],
+      };
+    } catch (error) {
+      console.error("Error adding car:", error);
+      throw new Error("Failed to add car");
+    }
+  }
+
+  async updateCar(id: number, car: NewCarBody): Promise<Car> {
+    try {
+      console.log(car);
+      const carData = {
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        pricePerKm: car.price,
+        location: car.location,
+        imageBase64: car.image,
+        carType: car.carType,
+        fuelType: car.fuelType,
+        transmission: car.transmission,
+        seats: car.seats,
+        latitude: car.lat,
+        longitude: car.long,
+      };
+
+      const result = await this.fetchWithAuth(`/cars/${id}`, {
+        method: "PATCH",
         body: JSON.stringify(carData),
       });
 

@@ -3,7 +3,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "./src/screens/HomeScreen";
 import CarsScreen from "./src/screens/CarsScreen";
 import { CarServiceContext } from "./src/services/CarServiceContext";
-import DummyCarService from "./src/services/DummyCarService";
 import APICarService from "./src/services/APICarService";
 import SettingsScreen from "./src/screens/SettingsScreen";
 import AppPermissions from "./src/screens/AppPermissionsScreen";
