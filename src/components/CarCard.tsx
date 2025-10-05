@@ -1,16 +1,43 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity, Button, Alert } from "react-native";
 import { Car } from "../types/Car";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { getCarTypeIcon, getFuelTypeIcon } from "../utils/IconUtils";
 import { useNavigation } from "@react-navigation/native";
+import { useContext } from "react";
+import { CarServiceContext } from "../services/CarServiceContext";
 
-interface CarCardProps {
+type CarCardProps = {
   car: Car;
+  managing?: boolean;
   onPress: (car: Car) => void;
 }
 
-export default function CarCard({ car, onPress }: CarCardProps) {
+export default function CarCard({ car, managing = false, onPress }: CarCardProps) {
   const navigation = useNavigation<any>();
+  const carService = useContext(CarServiceContext);
+
+  function handleRemove() {
+    Alert.alert(
+      "Remove Car",
+      "Are you sure you want to remove the car?",
+      [
+        {
+          text: "Yes",
+          onPress: () => {
+            carService?.removeCar(car.id.toString()).then(() => {
+              navigation.goBack();
+              navigation.navigate("myRentedCars")
+            });
+          },
+        },
+        { text: "Cancel" },
+      ]
+    );
+  }
+
+  function handleEdit(): void {
+    navigation.navigate("addCar", { carId: car.id })
+  }
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress(car)}>
@@ -63,10 +90,23 @@ export default function CarCard({ car, onPress }: CarCardProps) {
           <Text>{car.seats} seats</Text>
         </View>
       </View>
-
       <View>
         <Text style={styles.priceText}>{car.pricePerKm} kr. / km</Text>
       </View>
+
+      {managing &&
+        <View style={{ flexDirection: "row", justifyContent: "flex-end", gap: 10 }}>
+          <TouchableOpacity
+            style={styles.editBtn}
+            onPress={() => handleEdit()}>
+            <Text style={styles.btnText}>Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.removeBtn}
+            onPress={() => handleRemove()}>
+            <Text style={styles.btnText}>Remove</Text>
+          </TouchableOpacity>
+        </View>}
     </TouchableOpacity>
   );
 }
@@ -83,25 +123,25 @@ const styles = StyleSheet.create({
   carHeader: {
     fontSize: 18,
     fontWeight: "bold",
-    paddingBottom: 10,
+    paddingBottom: 10
   },
   topRow: {
     display: "flex",
     flexDirection: "row",
     paddingBottom: 10,
     justifyContent: "space-between",
-    gap: 20,
+    gap: 20
   },
   generalInfo: {
     display: "flex",
     flexDirection: "column",
     gap: 5,
-    width: "50%",
+    width: "50%"
   },
   ownerContainer: {
     display: "flex",
     flexDirection: "row",
-    gap: 15,
+    gap: 15
   },
   ownerName: {
     display: "flex",
@@ -114,12 +154,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    paddingLeft: 3,
+    paddingLeft: 3
   },
   carImage: {
     width: "40%",
     borderRadius: 10,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#f0f0f0"
   },
   featuresContainer: {
     display: "flex",
@@ -136,7 +176,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 5
   },
   featureIcon: {
     width: 24,
@@ -146,11 +186,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 100,
     borderColor: "lightgray",
-    borderWidth: 1,
+    borderWidth: 1
   },
   priceText: {
     paddingTop: 10,
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "bold"
   },
+  removeBtn: {
+    backgroundColor: "rgba(221, 0, 0, 1)",
+    padding: 10,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  editBtn: {
+    backgroundColor: "rgba(3, 197, 3, 1)",
+    padding: 10,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  btnText: {
+    color: "white",
+    fontWeight: "bold"
+  }
 });

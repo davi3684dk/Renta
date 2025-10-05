@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import GooglePlacesTextInput from "react-native-google-places-textinput";
 
+const hour = 1000 * 60 * 60;
+
 interface LocationAndTimeProps {
   pickupDate: Date;
   dropOffDate: Date;
@@ -61,7 +63,7 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
               selectedDate.getMonth(),
               selectedDate.getDate()
             );
-            props.onDateChange(newDate, newDate > props.dropOffDate ? newDate : props.dropOffDate);
+            props.onDateChange(newDate, newDate > props.dropOffDate ? new Date(newDate.getTime() + hour) : props.dropOffDate);
             break;
           }
           case "dropoff": {
@@ -71,7 +73,7 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
               selectedDate.getMonth(),
               selectedDate.getDate()
             );
-            props.onDateChange(newDate < props.pickupDate ? newDate : props.pickupDate, newDate);
+            props.onDateChange(newDate < props.pickupDate ? new Date(newDate.getTime() - hour) : props.pickupDate, newDate);
             break;
           }
         }
@@ -89,7 +91,7 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
               selectedDate.getHours(),
               selectedDate.getMinutes()
             );
-            props.onDateChange(newDate, newDate > props.dropOffDate ? newDate : props.dropOffDate);
+            props.onDateChange(newDate, newDate > props.dropOffDate ? new Date(newDate.getTime() + hour) : props.dropOffDate);
             break;
           }
           case "dropoff": {
@@ -98,7 +100,7 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
               selectedDate.getHours(),
               selectedDate.getMinutes()
             );
-            props.onDateChange(newDate < props.pickupDate ? newDate : props.pickupDate, newDate);
+            props.onDateChange(newDate < props.pickupDate ? new Date(newDate.getTime() - hour) : props.pickupDate, newDate);
             break;
           }
         }
