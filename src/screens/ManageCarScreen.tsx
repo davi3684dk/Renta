@@ -41,6 +41,13 @@ export default function ManageCarScreen({ route }: any) {
   const carService = useContext(CarServiceContext);
   const navigation = useNavigation<any>();
 
+  useEffect(() => {
+    carService?.getCar(route.params.car.id).then((car) => {
+      console.log(car);
+      setCar(car);
+    });
+  }, [])
+
   const [car, setCar] = useState<Car>(route.params.car);
 
   const [marked, setMarkedDays] = useState<MarkedDates>({});
@@ -52,7 +59,7 @@ export default function ManageCarScreen({ route }: any) {
 
   useEffect(() => {
     updateCalendarMarkings();
-  }, [selectedPeriod]);
+  }, [selectedPeriod, car]);
 
   function handleCalenderPress(date: DateData): void {
     if (!selectedPeriod.from || !selectedPeriod.to) {
@@ -162,7 +169,9 @@ export default function ManageCarScreen({ route }: any) {
           <Image style={styles.image} source={{ uri: car.imageUrl }}></Image>
           <View style={styles.content}>
             <View style={{ flexDirection: "row" }}>
-              <TouchableOpacity style={styles.editBtn}>
+              <TouchableOpacity 
+                style={styles.editBtn}
+                onPress={() => navigation.navigate("addCar", {carId: car.id})}>
                 <Text style={{ color: "white", fontWeight: "bold" }}>Edit</Text>
               </TouchableOpacity>
             </View>

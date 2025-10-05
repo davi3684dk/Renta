@@ -38,7 +38,6 @@ export default class APICarService implements CarService {
       console.log("Response status:", response.status);
       console.log("Response ok:", response.ok);
 
-      // Check for 401 Unauthorized (token expired)
       if (response.status === 401) {
         console.error("401 Unauthorized - Token expired");
         if (this.onTokenExpired) {
@@ -50,12 +49,9 @@ export default class APICarService implements CarService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error response:", errorText);
-        throw new Error(
-          `HTTP error! status: ${response.status}, body: ${errorText}`
-        );
+        throw new Error(JSON.parse(errorText)["message"]);
       }
 
-      // Handle empty responses (like DELETE)
       const text = await response.text();
       console.log("Response text length:", text.length);
       return text ? JSON.parse(text) : null;
@@ -69,16 +65,58 @@ export default class APICarService implements CarService {
     }
   }
 
+  private mapCar(car: any): Car {
+    return ({
+          id: car.id.toString(),
+          make: car.make,
+          model: car.model,
+          year: car.year,
+          pricePerKm: car.pricePerKm,
+          location: car.location,
+          lat: car.latitude,
+          lon: car.longitude,
+          imageUrl: car.imageBase64 || "",
+          carType: car.carType,
+          fuelType: car.fuelType,
+          transmission: car.transmission,
+          seats: car.seats,
+          owner: {
+            id: car.owner?.id || 0,
+            name:
+              car.owner?.firstName && car.owner?.lastName
+                ? `${car.owner.firstName} ${car.owner.lastName}`
+                : car.owner?.username || "Unknown",
+            avatarUrl:
+              car.owner?.avatarBase64 ||
+              "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
+            rating: car.owner?.rating || 0,
+            numberOfReviews: car.owner?.numberOfReviews || 0,
+          },
+          bookings:
+            car.bookings?.map((b: any) => ({
+              id: b.id,
+              from: new Date(b.startDate),
+              to: new Date(b.endDate),
+            })) || [],
+          availability:
+            car.availabilities?.map((a: any) => ({
+              id: a.id,
+              from: new Date(a.startDate),
+              to: new Date(a.endDate),
+            })) || [],
+        })
+  }
+
   async getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]> {
     try {
       const params: any = {};
 
       if (filter) {
         if (filter.carType && filter.carType.length > 0) {
-          params.carType = filter.carType[0];
+          params.carTypes = filter.carType;
         }
         if (filter.fuelType && filter.fuelType.length > 0) {
-          params.fuelType = filter.fuelType[0];
+          params.fuelTypes = filter.fuelType;
         }
         if (filter.transmission) params.transmission = filter.transmission;
         if (filter.priceMin !== undefined) params.minPrice = filter.priceMin;
@@ -86,9 +124,15 @@ export default class APICarService implements CarService {
         if (filter.moreThan5Seats) params.minSeats = 6;
         if (filter.lat !== undefined) params.userLat = filter.lat;
         if (filter.long !== undefined) params.userLng = filter.long;
+        if (filter.fromDate !== undefined) params.startDate = filter.fromDate.toISOString();
+        if (filter.toDate !== undefined) params.endDate = filter.toDate.toISOString();
+        if (filter.brand !== undefined) params.makes = filter.brand
         params.maxDistance =
           filter.distance !== undefined ? filter.distance : 10;
+        if (sort !== undefined) params.sort = sort;
       }
+
+      console.log(params);
 
       const queryString = new URLSearchParams(params).toString();
       const endpoint = queryString ? `/cars?${queryString}` : "/cars";
@@ -105,44 +149,7 @@ export default class APICarService implements CarService {
         return [];
       }
 
-      // Transform backend data to frontend format
-      const transformedCars = data.map((car: any) => ({
-        id: car.id.toString(),
-        make: car.make,
-        model: car.model,
-        year: car.year,
-        pricePerKm: car.pricePerKm,
-        location: car.location,
-        imageUrl: car.imageBase64 || "",
-        carType: car.carType,
-        fuelType: car.fuelType,
-        transmission: car.transmission,
-        seats: car.seats,
-        owner: {
-          id: car.owner?.id || 0,
-          name:
-            car.owner?.firstName && car.owner?.lastName
-              ? `${car.owner.firstName} ${car.owner.lastName}`
-              : car.owner?.username || "Unknown",
-          avatarUrl:
-            car.owner?.avatarBase64 ||
-            "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
-          rating: car.owner?.rating || 0,
-          numberOfReviews: car.owner?.numberOfReviews || 0,
-        },
-        bookings:
-          car.bookings?.map((b: any) => ({
-            id: b.id,
-            from: new Date(b.from),
-            to: new Date(b.to),
-          })) || [],
-        availability:
-          car.availability?.map((a: any) => ({
-            id: a.id,
-            from: new Date(a.from),
-            to: new Date(a.to),
-          })) || [],
-      }));
+      const transformedCars = data.map((car: any) => this.mapCar(car));
 
       console.log("Transformed cars:", transformedCars.length);
       return transformedCars;
@@ -153,64 +160,75 @@ export default class APICarService implements CarService {
     }
   }
 
-  async getCar(id: string): Promise<Car[]> {
+  async getCar(id: string): Promise<Car> {
     try {
       const car = await this.fetchWithAuth(`/cars/${id}`);
 
-      return [
-        {
-          id: car.id.toString(),
-          make: car.make,
-          model: car.model,
-          year: car.year,
-          pricePerKm: car.pricePerKm,
-          location: car.location,
-          imageUrl: car.imageBase64 || "",
-          carType: car.carType,
-          fuelType: car.fuelType,
-          transmission: car.transmission,
-          seats: car.seats,
-          owner: {
-            id: car.owner?.id || 0,
-            name:
-              car.owner?.firstName && car.owner?.lastName
-                ? `${car.owner.firstName} ${car.owner.lastName}`
-                : car.owner?.username || "Unknown",
-            avatarUrl: car.owner?.avatarBase64 || "",
-            rating: car.owner?.rating || 0,
-            numberOfReviews: car.owner?.numberOfReviews || 0,
-          },
-          bookings:
-            car.bookings?.map((b: any) => ({
-              id: b.id,
-              from: new Date(b.from),
-              to: new Date(b.to),
-            })) || [],
-          availability:
-            car.availability?.map((a: any) => ({
-              id: a.id,
-              from: new Date(a.from),
-              to: new Date(a.to),
-            })) || [],
-        },
-      ];
+      return this.mapCar(car);
     } catch (error) {
       console.error("Error fetching car:", error);
       throw new Error("Failed to fetch car details");
     }
   }
 
+  async getCarsByOwner(ownerId: number): Promise<Car[]> {
+    try {
+      console.log("Fetching cars for owner:", ownerId);
+      const data = await this.fetchWithAuth(`/cars/owner/${ownerId}`);
+
+      console.log("Raw data from backend:", data);
+      console.log("Number of owner's cars received:", data?.length || 0);
+
+      if (!data || !Array.isArray(data)) {
+        console.error("Invalid data format received:", data);
+        return [];
+      }
+
+      const transformedCars = data.map((car: any) => this.mapCar(car));
+
+      console.log("Transformed owner's cars:", transformedCars.length);
+      return transformedCars;
+    } catch (error) {
+      console.error("Error fetching owner's cars:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+      return [];
+    }
+  }
+
+  async getMyCars(id: number): Promise<Car[]> {
+    try {
+      console.log("Fetching cars for logged-in user");
+      const data = await this.fetchWithAuth(`/cars/owner/${id}`);
+
+      console.log("Raw data from backend:", data);
+      console.log("Number of my cars received:", data?.length || 0);
+
+      if (!data || !Array.isArray(data)) {
+        console.error("Invalid data format received:", data);
+        return [];
+      }
+
+      const transformedCars = data.map((car: any) => this.mapCar(car));
+
+      console.log("Transformed my cars:", transformedCars.length);
+      return transformedCars;
+    } catch (error) {
+      console.error("Error fetching my cars:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+      return [];
+    }
+  }
+
   async addCar(car: NewCarBody): Promise<Car> {
     try {
       console.log(car);
-      // Transform frontend format to backend format
       const carData = {
         make: car.make,
         model: car.model,
         year: car.year,
         pricePerKm: car.price,
         location: car.location,
-        imageBase64: car.image, // Assuming image is base64
+        imageBase64: car.image,
         carType: car.carType,
         fuelType: car.fuelType,
         transmission: car.transmission,
@@ -224,31 +242,40 @@ export default class APICarService implements CarService {
         body: JSON.stringify(carData),
       });
 
-      return {
-        id: result.id.toString(),
-        make: result.make,
-        model: result.model,
-        year: result.year,
-        pricePerKm: result.pricePerKm,
-        location: result.location,
-        imageUrl: result.imageBase64 || "",
-        carType: result.carType,
-        fuelType: result.fuelType,
-        transmission: result.transmission,
-        seats: result.seats,
-        owner: {
-          id: result.owner?.id || 0,
-          name: result.owner?.name || "Unknown",
-          avatarUrl: result.owner?.avatarUrl || "",
-          rating: result.owner?.rating || 0,
-          numberOfReviews: result.owner?.numberOfReviews || 0,
-        },
-        bookings: [],
-        availability: [],
-      };
+      return this.mapCar(result);
     } catch (error) {
       console.error("Error adding car:", error);
-      throw new Error("Failed to add car");
+      throw error;
+    }
+  }
+
+  async updateCar(id: number, car: NewCarBody): Promise<Car> {
+    try {
+      console.log(car);
+      const carData = {
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        pricePerKm: car.price,
+        location: car.location,
+        imageBase64: car.image,
+        carType: car.carType,
+        fuelType: car.fuelType,
+        transmission: car.transmission,
+        seats: car.seats,
+        latitude: car.lat,
+        longitude: car.long,
+      };
+
+      const result = await this.fetchWithAuth(`/cars/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(carData),
+      });
+
+      return this.mapCar(result);
+    } catch (error) {
+      console.error("Error adding car:", error);
+      throw error;
     }
   }
 

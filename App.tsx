@@ -3,7 +3,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "./src/screens/HomeScreen";
 import CarsScreen from "./src/screens/CarsScreen";
 import { CarServiceContext } from "./src/services/CarServiceContext";
-import DummyCarService from "./src/services/DummyCarService";
 import APICarService from "./src/services/APICarService";
 import SettingsScreen from "./src/screens/SettingsScreen";
 import AppPermissions from "./src/screens/AppPermissionsScreen";
@@ -50,7 +49,7 @@ function MyStack() {
     >
       <Stack.Screen name="home" component={HomeScreen} options={{ headerTitle: "Home" }} />
       <Stack.Screen name="cars" component={CarsScreen} options={{ headerTitle: "Find Cars" }} />
-      <Stack.Screen name="myRentedCars" component={MyRentedCarsScreen} options={{ headerTitle: "My Rented Cars" }} />
+      <Stack.Screen name="myRentedCars" component={MyRentedCarsScreen} options={{ headerTitle: "My Cars" }} />
       <Stack.Screen name="addCar" component={AddCarScreen} options={{ headerTitle: "Add Car" }} />
       <Stack.Screen name="manageCar" component={ManageCarScreen} options={{ headerTitle: "Manage Car" }} />
       <Stack.Screen name="settings" component={SettingsScreen} options={{ headerTitle: "Settings" }} />

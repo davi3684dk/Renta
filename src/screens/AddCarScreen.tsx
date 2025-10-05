@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Car } from "../types/Car";
 import { getCarTypeIcon, getFuelTypeIcon, getTransmissionIcon } from "../utils/IconUtils";
@@ -24,20 +24,47 @@ interface CarForm {
   long?: number;
 }
 
-export default function AddCarScreen() {
+export default function AddCarScreen({route}: any) {
   const carService = useContext(CarServiceContext);
 
   const navigation = useNavigation<any>();
 
-  const [car, setCar] = useState<CarForm>();
+  const [carForm, setCarForm] = useState<CarForm>();
   const [loading, setLoading] = useState(false);
+
+  const [updateMode, setUpdateMode] = useState(false);
   //const [image, setImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    //Set car form if routed from Manage Car
+    if (!route?.params?.carId || !carService)
+      return;
+
+    carService.getCar(route.params.carId).then((carData) => {
+      setCarForm({
+        make: carData.make,
+        model: carData.model,
+        year: carData.year.toString(),
+        location: carData.location,
+        lat: carData.lat,
+        long: carData.lon,
+        carType: carData.carType,
+        transmission: carData.transmission,
+        fuelType: carData.fuelType,
+        seats: carData.seats.toString(),
+        price: carData.pricePerKm.toString(),
+        imageBase64: carData.imageUrl.split(',')[1],
+      });
+    });
+
+    setUpdateMode(true);
+  }, [])
 
   const getCarChip = (carType: Car["carType"]) => {
     return (
       <TouchableOpacity
-        style={car?.carType === carType ? styles.buttonActive : styles.buttonInactive}
-        onPress={() => { setCar(prev => ({ ...prev, carType: carType })) }}>
+        style={carForm?.carType === carType ? styles.buttonActive : styles.buttonInactive}
+        onPress={() => { setCarForm(prev => ({ ...prev, carType: carType })) }}>
         {getCarTypeIcon(carType)}
         <Text>{carType}</Text>
       </TouchableOpacity>
@@ -47,8 +74,8 @@ export default function AddCarScreen() {
   const getFuelChip = (fuelType: Car["fuelType"]) => {
     return (
       <TouchableOpacity
-        style={car?.fuelType === fuelType ? styles.buttonActive : styles.buttonInactive}
-        onPress={() => { setCar(prev => ({ ...prev, fuelType: fuelType })) }}>
+        style={carForm?.fuelType === fuelType ? styles.buttonActive : styles.buttonInactive}
+        onPress={() => { setCarForm(prev => ({ ...prev, fuelType: fuelType })) }}>
         {getFuelTypeIcon(fuelType)}
         <Text>{fuelType}</Text>
       </TouchableOpacity>
@@ -58,8 +85,8 @@ export default function AddCarScreen() {
   const getTransmissionChip = (transmission: Car["transmission"]) => {
     return (
       <TouchableOpacity
-        style={car?.transmission === transmission ? styles.buttonActive : styles.buttonInactive}
-        onPress={() => { setCar(prev => ({ ...prev, transmission: transmission })) }}>
+        style={carForm?.transmission === transmission ? styles.buttonActive : styles.buttonInactive}
+        onPress={() => { setCarForm(prev => ({ ...prev, transmission: transmission })) }}>
         {getTransmissionIcon(transmission)}
         <Text>{transmission}</Text>
       </TouchableOpacity>
@@ -83,45 +110,59 @@ export default function AddCarScreen() {
 
     // Check missing fields
     const missing = requiredFields.filter(
-      (field) => !car?.[field] || car[field]?.toString().trim() === ""
+      (field) => !carForm?.[field] || carForm[field]?.toString().trim() === ""
     );
 
     if (missing.length > 0) {
       Alert.alert(
         "Missing Information",
-        `Please fill in all required fields.${!car?.imageBase64 ? " And upload a car photo." : ""}`
+        `Please fill in all required fields.${!carForm?.imageBase64 ? " And upload a car photo." : ""}`
       );
       return;
     }
 
-    if (carService && car) {
+    if (carService && carForm) {
       setLoading(true);
-      try {
-        carService.addCar(
-          {
-            make: car.make!,
-            model: car.model!,
-            year: Number.parseInt(car.year!),
-            location: car.location!,
-            carType: car.carType!,
-            transmission: car.transmission!,
-            fuelType: car.fuelType!,
-            seats: Number.parseInt(car.seats!),
-            price: Number.parseFloat(car.price!),
-            image: "data:image/jpeg;base64," + car.imageBase64!,
-            lat: car.lat!,
-            long: car.long!
-          }
-        ).then((car) => {
-          setLoading(false);
-          navigation.navigate("home");
-          navigation.navigate("manageCar", {car});
-          //TODO navigate to car page
-        });
-      } catch (e) {
-        console.log(e)
-        setLoading(false);
-      }
+
+        const carParams = {
+          make: carForm.make!,
+          model: carForm.model!,
+          year: Number.parseInt(carForm.year!),
+          location: carForm.location!,
+          carType: carForm.carType!,
+          transmission: carForm.transmission!,
+          fuelType: carForm.fuelType!,
+          seats: Number.parseInt(carForm.seats!),
+          price: Number.parseFloat(carForm.price!),
+          image: "data:image/jpeg;base64," + carForm.imageBase64!,
+          lat: carForm.lat!,
+          long: carForm.long!
+        }
+        if (updateMode) {
+          carService.updateCar(
+            route.params.carId,
+            carParams
+          ).then((car) => {
+            setLoading(false);
+            navigation.popTo("myRentedCars");
+            navigation.navigate("manageCar", {car});
+          }).catch((e) => {
+            setLoading(false);
+            alert(e.message)
+          });
+        } else {
+          carService.addCar(
+            carParams
+          ).then((car) => {
+            setLoading(false);
+            navigation.popTo("myRentedCars");
+            navigation.navigate("manageCar", {car});
+          }).catch((e) => {
+            setLoading(false);
+            alert(e.message)
+          });
+        }
+
     }
   }
 
@@ -137,15 +178,15 @@ export default function AddCarScreen() {
           <ScrollView style={{flex: 1}} contentContainerStyle={styles.main} keyboardShouldPersistTaps="handled">
             <View>
               <Text>Car Brand</Text>
-              <TextInput style={styles.input} value={car?.make} onChangeText={(text) => { setCar(prev => ({ ...prev, make: text })) }} />
+              <TextInput style={styles.input} value={carForm?.make} onChangeText={(text) => { setCarForm(prev => ({ ...prev, make: text })) }} />
             </View>
             <View>
               <Text>Car Model</Text>
-              <TextInput style={styles.input} value={car?.model} onChangeText={(text) => { setCar(prev => ({ ...prev, model: text })) }} />
+              <TextInput style={styles.input} value={carForm?.model} onChangeText={(text) => { setCarForm(prev => ({ ...prev, model: text })) }} />
             </View>
             <View>
               <Text>Car Year</Text>
-              <TextInput style={styles.input} value={car?.year} inputMode="numeric" onChangeText={(text) => { setCar(prev => ({ ...prev, year: text })) }} />
+              <TextInput style={styles.input} value={carForm?.year} inputMode="numeric" onChangeText={(text) => { setCarForm(prev => ({ ...prev, year: text })) }} />
             </View>
 
             <View>
@@ -158,9 +199,9 @@ export default function AddCarScreen() {
                 fetchDetails={true}
                 detailsFields={['location']}
                 scrollEnabled={false}
+                value={carForm?.location}
                 onPlaceSelect={(place) => {
-                  console.log(place); 
-                  setCar(prev => ({
+                  setCarForm(prev => ({
                     ...prev, 
                     location: place.structuredFormat.mainText.text, 
                     lat: place.details!.location.latitude, 
@@ -202,7 +243,7 @@ export default function AddCarScreen() {
 
             <View style={{ marginTop: 20 }}>
               <Text>Seats</Text>
-              <TextInput inputMode="numeric" style={styles.input} onChangeText={(text) => { setCar(prev => ({ ...prev, seats: text })) }} />
+              <TextInput inputMode="numeric" style={styles.input} value={carForm?.seats} onChangeText={(text) => { setCarForm(prev => ({ ...prev, seats: text })) }} />
             </View>
 
             <View style={{ marginTop: 20 }}>
@@ -216,7 +257,6 @@ export default function AddCarScreen() {
                     quality: 1
                   });
 
-                  console.log(value);
                   if (value.canceled === true) {
                     return;
                   }
@@ -232,34 +272,78 @@ export default function AddCarScreen() {
                      base64: true
                    });
 
-                   setCar(prev => ({ ...prev, imageBase64: compressed.base64 ?? undefined }));
-
-                   console.log(compressed);
+                   setCarForm(prev => ({ ...prev, imageBase64: compressed.base64 ?? undefined }));
                  } catch (e) {
                   console.log(e);
                  }
 
                 }}
                 >
-                {!car?.imageBase64 && 
+                {!carForm?.imageBase64 && 
                 <View style={styles.imageSelect}>
                   <Text>Click to Take Picture</Text>
                 </View>
                 }
-                {car?.imageBase64 && <Image source={{ uri: "data:image/jpeg;base64,"+car.imageBase64 }} style={styles.image} />}
+                {carForm?.imageBase64 && <Image source={{ uri: "data:image/jpeg;base64,"+carForm.imageBase64 }} style={styles.image} />}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 10,
+                  borderColor: "lightgrey",
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  backgroundColor: "#e4e4e4ff",
+                  marginTop: 10,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  boxShadow: ""
+                }}
+                onPress={async () => {
+                  const value = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ['images'],
+                    allowsEditing: true,
+                    aspect: [4, 3],
+                    quality: 1
+                  });
+
+                  if (value.canceled === true) {
+                    return;
+                  }
+
+                  //Downscale and Compress to not upload 200 Mega Pixel images
+                 try {
+                   const manipulator = ImageManipulator.manipulate(value.assets[0].uri);
+                   manipulator.resize({width: 640, height: 480});
+                   const rendered = await manipulator.renderAsync();
+                   const compressed = await rendered.saveAsync({
+                     compress: 0.5, // 50% quality
+                     format: SaveFormat.JPEG,
+                     base64: true
+                   });
+
+                   setCarForm(prev => ({ ...prev, imageBase64: compressed.base64 ?? undefined }));
+                 } catch (e) {
+                  console.log(e);
+                 }
+
+                }}>
+                <Text>Select image from Gallery</Text>
               </TouchableOpacity>
             </View>
 
             <View>
               <Text>Price per km</Text>
-              <TextInput style={styles.input} value={car?.price} inputMode="numeric" onChangeText={(text) => { setCar(prev => ({ ...prev, price: text })) }} />
+              <TextInput style={styles.input} value={carForm?.price} inputMode="numeric" onChangeText={(text) => { setCarForm(prev => ({ ...prev, price: text })) }} />
             </View>
 
             <View>
               <TouchableOpacity 
                 style={styles.submitButton}
                 onPress={handleSubmit}>
-                <Text style={styles.submitText}>Put car up for Rent</Text>
+                <Text style={styles.submitText}>{updateMode ? "Update Car" : "Put car up for Rent"}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
