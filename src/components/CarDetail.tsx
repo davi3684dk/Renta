@@ -1,36 +1,34 @@
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, DimensionValue } from "react-native";
 import { Car } from "../types/Car";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import { PROVIDER_GOOGLE } from "react-native-maps";
+import { getCarTypeIcon, getFuelTypeIcon, getTransmissionIcon } from "../utils/IconUtils";
+import { useContext, useEffect, useState } from "react";
+import { CarServiceContext } from "../services/CarServiceContext";
 
 interface CarProps {
   car: Car;
 }
 
-function getCarTypeIcon(carType: Car["carType"]) {
-  switch (carType) {
-    case "Truck":
-      return <FontAwesome5 name="truck" size={12} color="black" />;
-    case "Mini Bus":
-      return <FontAwesome5 name="bus" size={12} color="black" />;
-    case "Van":
-      return <FontAwesome5 name="shuttle-van" size={12} color="black" />;
-    default:
-      return <FontAwesome5 name="car-side" size={12} color="black" />;
-  }
-}
-
-function getFuelTypeIcon(fuelType: Car["fuelType"]) {
-  switch (fuelType) {
-    case "Electric":
-      return <MaterialCommunityIcons name="battery-charging-high" size={12} color="black" />;
-    default:
-      return <FontAwesome5 name="gas-pump" size={12} color="black" />;
-  }
-}
-
 export default function CarDetail({ car }: CarProps) {
+  const carService = useContext(CarServiceContext);
+  const [reviews, setReviews] = useState<Record<number,number>>({});
+
+  useEffect(() => {
+    carService?.getReviewDistribution(car.owner.id)
+      .then((data) => {
+        setReviews(data);
+      });
+  }, []);
+
+  function getRatingPercentage(star: number) {
+    if (reviews[5] === 0 || car.owner.numberOfReviews === 0)
+      return "0%"
+
+    return ((reviews[5] / car.owner.numberOfReviews * 100) + "%") as DimensionValue;
+  }
+
   return (
     <View style={styles.container}>
       {/* Car Title and Image */}
@@ -71,9 +69,7 @@ export default function CarDetail({ car }: CarProps) {
           <Text>{car.fuelType}</Text>
         </View>
         <View style={styles.featurePin}>
-          <View style={styles.featureIcon}>
-            <MaterialCommunityIcons name="car-shift-pattern" size={12} color="black" />
-          </View>
+          <View style={styles.featureIcon}>{getTransmissionIcon(car.transmission)}</View>
           <Text>{car.transmission}</Text>
         </View>
         <View style={styles.featurePin}>
@@ -153,9 +149,9 @@ export default function CarDetail({ car }: CarProps) {
 
         {/* Rating Summary */}
         <View style={styles.ratingSummary}>
-          <Text style={styles.ratingNumber}>4.7</Text>
+          <Text style={styles.ratingNumber}>{car.owner.rating}</Text>
           <Text style={styles.starRating}>⭐</Text>
-          <Text style={styles.reviewCount}>61 reviews</Text>
+          <Text style={styles.reviewCount}>{car.owner.numberOfReviews} reviews</Text>
         </View>
 
         {/* Rating Bars */}
@@ -163,74 +159,31 @@ export default function CarDetail({ car }: CarProps) {
           <View style={styles.ratingBar}>
             <Text style={styles.starLabel}>5 stars</Text>
             <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: "80%", backgroundColor: "#FFD700" }]} />
+              <View style={[styles.progressBar, { width: getRatingPercentage(5), backgroundColor: "#FFD700" }]} />
             </View>
           </View>
           <View style={styles.ratingBar}>
             <Text style={styles.starLabel}>4 stars</Text>
             <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: "15%", backgroundColor: "#FFD700" }]} />
+              <View style={[styles.progressBar, { width: getRatingPercentage(4), backgroundColor: "#FFD700" }]} />
             </View>
           </View>
           <View style={styles.ratingBar}>
             <Text style={styles.starLabel}>3 stars</Text>
             <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: "5%", backgroundColor: "#FFD700" }]} />
+              <View style={[styles.progressBar, { width: getRatingPercentage(3), backgroundColor: "#FFD700" }]} />
             </View>
           </View>
           <View style={styles.ratingBar}>
             <Text style={styles.starLabel}>2 stars</Text>
             <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: "0%", backgroundColor: "#FFD700" }]} />
+              <View style={[styles.progressBar, { width: getRatingPercentage(2), backgroundColor: "#FFD700" }]} />
             </View>
           </View>
           <View style={styles.ratingBar}>
             <Text style={styles.starLabel}>1 stars</Text>
             <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: "0%", backgroundColor: "#FFD700" }]} />
-            </View>
-          </View>
-        </View>
-
-        {/* Individual Reviews */}
-        <View style={styles.reviewsList}>
-          <View style={styles.reviewItem}>
-            <View style={styles.reviewAvatar}>
-              <Text style={styles.avatarText}>L</Text>
-            </View>
-            <View style={styles.reviewContent}>
-              <Text style={styles.reviewStars}>⭐⭐⭐⭐⭐</Text>
-              <Text style={styles.reviewAuthor}>Lene - 24. september 2025</Text>
-            </View>
-          </View>
-
-          <View style={styles.reviewItem}>
-            <View style={styles.reviewAvatar}>
-              <Text style={styles.avatarText}>S</Text>
-            </View>
-            <View style={styles.reviewContent}>
-              <Text style={styles.reviewStars}>⭐⭐⭐⭐</Text>
-              <Text style={styles.reviewAuthor}>Søren - 22. september 2025</Text>
-            </View>
-          </View>
-
-          <View style={styles.reviewItem}>
-            <View style={styles.reviewAvatar}>
-              <Text style={styles.avatarText}>A</Text>
-            </View>
-            <View style={styles.reviewContent}>
-              <Text style={styles.reviewStars}>⭐⭐⭐⭐</Text>
-              <Text style={styles.reviewAuthor}>Astrid - 12. september 2025</Text>
-            </View>
-          </View>
-
-          <View style={styles.reviewItem}>
-            <View style={styles.reviewAvatar}>
-              <Text style={styles.avatarText}>P</Text>
-            </View>
-            <View style={styles.reviewContent}>
-              <Text style={styles.reviewStars}>⭐⭐⭐⭐⭐</Text>
-              <Text style={styles.reviewAuthor}>Paul - 6. september 2025</Text>
+              <View style={[styles.progressBar, { width: getRatingPercentage(1), backgroundColor: "#FFD700" }]} />
             </View>
           </View>
         </View>

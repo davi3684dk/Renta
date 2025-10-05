@@ -20,6 +20,8 @@ export default interface CarService {
   addBooking(carId: string, fromDate: Date, toDate: Date): Promise<void>;
 
   removeBooking(bookingId: string): Promise<void>;
+
+  getReviewDistribution(userId: number): Promise<Record<number, number>>;
 }
 
 export type NewCarBody = {

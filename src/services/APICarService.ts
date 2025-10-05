@@ -219,6 +219,23 @@ export default class APICarService implements CarService {
     }
   }
 
+  async getReviewDistribution(userId: number): Promise<Record<number, number>> {
+    try {
+      const data = this.fetchWithAuth(`/reviews/user/${userId}/distribution`);
+
+      if (!data) {
+        console.error("Invalid data format received:", data);
+        return {};
+      }
+
+      return data;
+
+    } catch (error) {
+      console.error("Error removing booking:", error);
+      throw new Error("Failed to remove booking");
+    }
+  }
+
   async addCar(car: NewCarBody): Promise<Car> {
     try {
       console.log(car);
