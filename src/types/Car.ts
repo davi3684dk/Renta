@@ -5,6 +5,8 @@ export type Car = {
   year: number;
   pricePerKm: number;
   location: string;
+  lat: number;
+  lon: number;
   imageUrl: string;
   owner: CarOwner;
 

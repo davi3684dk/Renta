@@ -46,6 +46,8 @@ export default function AddCarScreen({route}: any) {
         model: carData.model,
         year: carData.year.toString(),
         location: carData.location,
+        lat: carData.lat,
+        long: carData.lon,
         carType: carData.carType,
         transmission: carData.transmission,
         fuelType: carData.fuelType,
