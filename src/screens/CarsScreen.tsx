@@ -134,15 +134,17 @@ export default function CarsScreen({ route }: any) {
       borderWidth: 1,
     },
     locationContainer: {
-      backgroundColor: "lightgrey",
+      backgroundColor: "#009de0",
       borderRadius: 10,
       padding: 10,
+      marginBottom: 10
     },
     dateText: {
-      color: "grey",
+      color: "#ffffffff",
     },
     locationText: {
       fontSize: 16,
+      color: "#ffffffff",
       fontWeight: "bold",
     },
   });

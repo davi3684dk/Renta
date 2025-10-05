@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   editBtn: {
-    backgroundColor: "rgba(0, 221, 0, 1)",
+    backgroundColor: "rgba(3, 197, 3, 1)",
     padding: 10,
     borderRadius: 10,
     justifyContent: "center",
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addAvailability: {
-    backgroundColor: "rgba(0, 221, 0, 1)",
+    backgroundColor: "#009de0",
     padding: 10,
     borderRadius: 10,
     justifyContent: "center",
