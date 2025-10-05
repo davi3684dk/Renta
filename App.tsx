@@ -62,7 +62,7 @@ function MyStack() {
       <Stack.Screen
         name="myRentedCars"
         component={MyRentedCarsScreen}
-        options={{ headerTitle: "My Rented Cars" }}
+        options={{ headerTitle: "My Cars" }}
       />
       <Stack.Screen
         name="addCar"
