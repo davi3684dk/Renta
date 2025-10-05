@@ -121,7 +121,7 @@ export default function AddCarScreen({route}: any) {
 
     if (carService && carForm) {
       setLoading(true);
-      try {
+
         const carParams = {
           make: carForm.make!,
           model: carForm.model!,
@@ -144,6 +144,9 @@ export default function AddCarScreen({route}: any) {
             setLoading(false);
             navigation.popTo("myRentedCars");
             navigation.navigate("manageCar", {car});
+          }).catch((e) => {
+            setLoading(false);
+            alert(e.message)
           });
         } else {
           carService.addCar(
@@ -152,12 +155,12 @@ export default function AddCarScreen({route}: any) {
             setLoading(false);
             navigation.popTo("myRentedCars");
             navigation.navigate("manageCar", {car});
+          }).catch((e) => {
+            setLoading(false);
+            alert(e.message)
           });
         }
-      } catch (e) {
-        console.log(e)
-        setLoading(false);
-      }
+
     }
   }
 

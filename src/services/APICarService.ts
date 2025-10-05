@@ -49,9 +49,7 @@ export default class APICarService implements CarService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error response:", errorText);
-        throw new Error(
-          `HTTP error! status: ${response.status}, body: ${errorText}`
-        );
+        throw new Error(JSON.parse(errorText)["message"]);
       }
 
       const text = await response.text();
@@ -370,7 +368,7 @@ export default class APICarService implements CarService {
       };
     } catch (error) {
       console.error("Error adding car:", error);
-      throw new Error("Failed to add car");
+      throw error;
     }
   }
 
@@ -421,7 +419,7 @@ export default class APICarService implements CarService {
       };
     } catch (error) {
       console.error("Error adding car:", error);
-      throw new Error("Failed to add car");
+      throw error;
     }
   }
 
