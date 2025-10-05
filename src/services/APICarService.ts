@@ -130,9 +130,8 @@ export default class APICarService implements CarService {
         params.maxDistance =
           filter.distance !== undefined ? filter.distance : 10;
         if (sort !== undefined) params.sort = sort;
+        if (filter.page !== undefined) params.page = filter.page;
       }
-
-      console.log(params);
 
       const queryString = new URLSearchParams(params).toString();
       const endpoint = queryString ? `/cars?${queryString}` : "/cars";
@@ -141,7 +140,6 @@ export default class APICarService implements CarService {
 
       const data = await this.fetchWithAuth(endpoint);
 
-      console.log("Raw data from backend:", data);
       console.log("Number of cars received:", data?.length || 0);
 
       if (!data || !Array.isArray(data)) {

@@ -13,7 +13,7 @@ interface CarProps {
 
 export default function CarDetail({ car }: CarProps) {
   const carService = useContext(CarServiceContext);
-  const [reviews, setReviews] = useState<Record<number,number>>({});
+  const [reviews, setReviews] = useState<Record<string,number>>({});
 
   useEffect(() => {
     carService?.getReviewDistribution(car.owner.id)
@@ -22,11 +22,12 @@ export default function CarDetail({ car }: CarProps) {
       });
   }, []);
 
-  function getRatingPercentage(star: number) {
-    if (reviews[5] === 0 || car.owner.numberOfReviews === 0)
+  function getRatingPercentage(star: number): DimensionValue {
+    if (reviews[star] === 0 || car.owner.numberOfReviews === 0)
       return "0%"
 
-    return ((reviews[5] / car.owner.numberOfReviews * 100) + "%") as DimensionValue;
+    const num = (reviews[star] / car.owner.numberOfReviews * 100);
+    return `${num}%`;
   }
 
   return (
