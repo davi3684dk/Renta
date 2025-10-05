@@ -6,13 +6,14 @@ import { useNavigation } from "@react-navigation/native";
 
 interface CarCardProps {
   car: Car;
+  onPress: (car: Car) => void;
 }
 
-export default function CarCard({ car }: CarCardProps) {
+export default function CarCard({ car, onPress }: CarCardProps) {
   const navigation = useNavigation<any>();
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => navigation.navigate("DetailScreen", { car })}>
+    <TouchableOpacity style={styles.container} onPress={() => onPress(car)}>
       <View style={styles.topRow}>
         <View style={styles.generalInfo}>
           <Text style={styles.carHeader}>
