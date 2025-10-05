@@ -201,7 +201,6 @@ export default function AddCarScreen({route}: any) {
                 scrollEnabled={false}
                 value={carForm?.location}
                 onPlaceSelect={(place) => {
-                  console.log(place); 
                   setCarForm(prev => ({
                     ...prev, 
                     location: place.structuredFormat.mainText.text, 
@@ -258,7 +257,6 @@ export default function AddCarScreen({route}: any) {
                     quality: 1
                   });
 
-                  console.log(value);
                   if (value.canceled === true) {
                     return;
                   }
@@ -275,8 +273,6 @@ export default function AddCarScreen({route}: any) {
                    });
 
                    setCarForm(prev => ({ ...prev, imageBase64: compressed.base64 ?? undefined }));
-
-                   console.log(compressed);
                  } catch (e) {
                   console.log(e);
                  }
@@ -289,6 +285,52 @@ export default function AddCarScreen({route}: any) {
                 </View>
                 }
                 {carForm?.imageBase64 && <Image source={{ uri: "data:image/jpeg;base64,"+carForm.imageBase64 }} style={styles.image} />}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 10,
+                  borderColor: "lightgrey",
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  backgroundColor: "#e4e4e4ff",
+                  marginTop: 10,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  boxShadow: ""
+                }}
+                onPress={async () => {
+                  const value = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ['images'],
+                    allowsEditing: true,
+                    aspect: [4, 3],
+                    quality: 1
+                  });
+
+                  if (value.canceled === true) {
+                    return;
+                  }
+
+                  //Downscale and Compress to not upload 200 Mega Pixel images
+                 try {
+                   const manipulator = ImageManipulator.manipulate(value.assets[0].uri);
+                   manipulator.resize({width: 640, height: 480});
+                   const rendered = await manipulator.renderAsync();
+                   const compressed = await rendered.saveAsync({
+                     compress: 0.5, // 50% quality
+                     format: SaveFormat.JPEG,
+                     base64: true
+                   });
+
+                   setCarForm(prev => ({ ...prev, imageBase64: compressed.base64 ?? undefined }));
+                 } catch (e) {
+                  console.log(e);
+                 }
+
+                }}>
+                <Text>Select image from Gallery</Text>
               </TouchableOpacity>
             </View>
 
