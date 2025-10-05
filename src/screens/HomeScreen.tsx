@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   findBtn: {
-    backgroundColor: "#8e44ad",
+    backgroundColor: "#009de0",
     padding: 14,
     borderRadius: 8,
     alignItems: "center",
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   findBtnText: { color: "white", fontWeight: "bold" },
   bottom: { alignItems: "center", marginTop: 40 },
   circleBtn: {
-    backgroundColor: "#8e44ad",
+    backgroundColor: "#009de0",
     width: 50,
     height: 50,
     borderRadius: 25,
