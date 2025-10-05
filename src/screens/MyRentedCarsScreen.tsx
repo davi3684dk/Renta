@@ -78,7 +78,7 @@ export default function MyRentedCarsScreen() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#8e44ad" />
+        <ActivityIndicator size="large" color="#009de0" />
       </View>
     );
   }
@@ -114,7 +114,7 @@ export default function MyRentedCarsScreen() {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => handleCarPress(item)}>
-                <CarCard car={item} />
+                <CarCard car={item} managing={true} />
               </TouchableOpacity>
             )}
             contentContainerStyle={styles.listContainer}
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   emptyButton: {
-    backgroundColor: "#8e44ad",
+    backgroundColor: "#009de0",
     padding: 14,
     paddingHorizontal: 24,
     borderRadius: 8,

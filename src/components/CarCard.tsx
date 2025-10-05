@@ -1,15 +1,41 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity, Button, Alert } from "react-native";
 import { Car } from "../types/Car";
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getCarTypeIcon, getFuelTypeIcon } from "../utils/IconUtils";
 import { useNavigation } from "@react-navigation/native";
+import { useContext } from "react";
+import { CarServiceContext } from "../services/CarServiceContext";
 
-interface CarCardProps {
+type CarCardProps = {
     car: Car;
+    managing?: boolean;
 }
 
-export default function CarCard({ car }: CarCardProps) {
+export default function CarCard({ car, managing = false }: CarCardProps) {
     const navigation = useNavigation<any>();
+    const carService = useContext(CarServiceContext);
+
+    function handleRemove() {
+      Alert.alert(
+        "Remove Car",
+        "Are you sure you want to remove the car?",
+        [
+          {
+            text: "Yes",
+            onPress: () => {
+              carService?.removeCar(car.id.toString()).then(() => {
+                navigation.navigate("myRentedCars");
+              });
+            },
+          },
+          { text: "Cancel" },
+        ]
+      );
+    }
+
+    function handleEdit(): void {
+      navigation.navigate("addCar", {carId: car.id})
+    }
 
     return (
         <TouchableOpacity style={styles.container} onPress={() => navigation.navigate("manageCar", {car})}>
@@ -68,6 +94,20 @@ export default function CarCard({ car }: CarCardProps) {
             <View>
                 <Text style={styles.priceText}>{car.pricePerKm} kr. / km</Text>
             </View>
+
+            {managing && 
+            <View style={{flexDirection: "row", justifyContent: "flex-end", gap: 10}}>
+              <TouchableOpacity 
+                style={styles.editBtn}
+                onPress={() => handleEdit()}>
+                <Text style={styles.btnText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.removeBtn}
+                onPress={() => handleRemove()}>
+                <Text style={styles.btnText}>Remove</Text>
+              </TouchableOpacity>
+            </View>}
         </TouchableOpacity>
     );
 }
@@ -153,5 +193,23 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         fontSize: 16,
         fontWeight: "bold"
+    },
+    removeBtn: {
+      backgroundColor: "rgba(221, 0, 0, 1)",
+      padding: 10,
+      borderRadius: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    editBtn: {
+      backgroundColor: "rgba(3, 197, 3, 1)",
+      padding: 10,
+      borderRadius: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    btnText: {
+      color: "white", 
+      fontWeight: "bold"
     }
 });

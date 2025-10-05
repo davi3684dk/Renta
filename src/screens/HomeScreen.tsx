@@ -14,8 +14,8 @@ export default function HomeScreen() {
   const navigation = useNavigation<any>();
 
   const [location, setLocation] = useState<Place | undefined>();
-  const [pickUpDate, setPickUpDate] = useState(new Date());
-  const [dropOffDate, setDropOffDate] = useState(new Date());
+  const [pickUpDate, setPickUpDate] = useState(new Date((new Date().getTime() + 1000 * 60 * 60)));
+  const [dropOffDate, setDropOffDate] = useState(new Date((new Date().getTime() + 1000 * 60 * 60 * 2)));
 
   function handleSearch() {
     if (!pickUpDate || !dropOffDate || !location) {
