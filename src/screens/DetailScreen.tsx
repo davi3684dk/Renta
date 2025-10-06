@@ -23,8 +23,10 @@ export default function DetailScreen({ route }: any) {
     if (!fromDate || !toDate)
       return;
 
-    carService?.addBooking(car.id, fromDate, toDate);
-    navigation.popToTop();
+    carService?.addBooking(car.id, fromDate, toDate).then(() => {
+      navigation.popToTop();
+      navigation.navigate("MyBookingsScreen");
+    });
   }
 
   return (
@@ -34,7 +36,7 @@ export default function DetailScreen({ route }: any) {
           {<CarDetail car={car as Car} />}
         </ScrollView>
 
-        {fromDate && toDate && <>
+        {(fromDate && toDate) &&
         <View style={styles.footer}>
           <Text style={styles.priceText}>{car.pricePerKm} kr. / km</Text>
           <TouchableOpacity 
@@ -42,9 +44,9 @@ export default function DetailScreen({ route }: any) {
             onPress={() => handleRentPressed()}>
             <Text style={styles.rentButtonText}>Rent Car</Text>
           </TouchableOpacity>
-        </View>
+        </View>}
 
-        
+        {(fromDate && toDate) &&
         <Modal
           visible={modalVisible}
           animationType="fade"
@@ -89,7 +91,7 @@ export default function DetailScreen({ route }: any) {
             </View>
           </View>
 
-        </Modal> </>}
+        </Modal>}
       </SafeAreaView>
     </SafeAreaProvider>
   );
