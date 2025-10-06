@@ -174,7 +174,7 @@ export default class APICarService implements CarService {
       console.log("Fetching cars for owner:", ownerId);
       const data = await this.fetchWithAuth(`/cars/owner/${ownerId}`);
 
-      console.log("Raw data from backend:", data);
+      //console.log("Raw data from backend:", data);
       console.log("Number of owner's cars received:", data?.length || 0);
 
       if (!data || !Array.isArray(data)) {
@@ -198,7 +198,7 @@ export default class APICarService implements CarService {
       console.log("Fetching cars for logged-in user");
       const data = await this.fetchWithAuth(`/cars/owner/${id}`);
 
-      console.log("Raw data from backend:", data);
+      //console.log("Raw data from backend:", data);
       console.log("Number of my cars received:", data?.length || 0);
 
       if (!data || !Array.isArray(data)) {
@@ -339,7 +339,7 @@ export default class APICarService implements CarService {
   async getMyBookings(): Promise<Booking[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        const data = await this.fetchWithAuth(`/car-booking/my-bookings`);
+        const data = await this.fetchWithAuth(`/car-bookings/my-bookings`);
 
         if (!data || !Array.isArray(data)) {
           reject("Invalid data format received");
@@ -349,7 +349,8 @@ export default class APICarService implements CarService {
         const bookings: Booking[] = data.map(booking => ({
           id: booking.id,
           from: booking.startDate,
-          to: booking.endDate 
+          to: booking.endDate,
+          car: this.mapCar(booking.car)
         }));
 
         resolve(bookings);
@@ -377,7 +378,7 @@ export default class APICarService implements CarService {
 
   async removeBooking(bookingId: number): Promise<void> {
     try {
-      await this.fetchWithAuth(`/car-booking/${bookingId}`, {
+      await this.fetchWithAuth(`/car-bookings/${bookingId}`, {
         method: "DELETE",
       });
     } catch (error) {

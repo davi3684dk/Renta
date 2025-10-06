@@ -38,6 +38,7 @@ export type Booking = {
   id: number;
   from: Date;
   to: Date;
+  car: Car;
 }
 
 
