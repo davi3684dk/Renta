@@ -17,6 +17,7 @@ import LoginScreen from "./src/screens/LoginScreen";
 import RegisterScreen from "./src/screens/RegisterScreen";
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
 import DetailScreen from "./src/screens/DetailScreen";
+import MyBookingsScreen from "./src/screens/MyBookingsScreen";
 
 const Stack = createStackNavigator();
 
@@ -57,6 +58,7 @@ function MyStack() {
       <Stack.Screen name="customization" component={Customization} options={{ headerTitle: "Sound & Customization" }} />
       <Stack.Screen name="profilebilling" component={ProfileBilling} options={{ headerTitle: "Profile & Billing" }} />
       <Stack.Screen name="DetailScreen" component={DetailScreen} options={{ headerTitle: "Car Details" }} />
+      <Stack.Screen name="MyBookingsScreen" component={MyBookingsScreen} options={{ headerTitle: "My Bookings" }} />
     </Stack.Navigator>
   );
 }

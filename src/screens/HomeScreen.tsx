@@ -60,6 +60,15 @@ export default function HomeScreen() {
           <Text style={{ color: "white", fontSize: 18 }}>{">"}</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.bottom}>
+        <TouchableOpacity
+          style={styles.bookingsButton}
+          onPress={() => navigation.navigate("MyBookingsScreen")}
+        >
+          <Text style={{ color: "white", fontSize: 18 }}>{"View current Bookings"}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -95,6 +104,13 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bookingsButton: {
+    backgroundColor: "#009de0",
+    padding: 10,
+    borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
   },

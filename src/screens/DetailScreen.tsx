@@ -5,16 +5,7 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Alert, Modal, But
 import { Car } from "../types/Car";
 import { CarServiceContext } from "../services/CarServiceContext";
 import CarDetail from "../components/CarDetail";
-
-const formatTime = (date: Date) =>
-  date.toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
-
-const formatDate = (date: Date) =>
-  date.toLocaleDateString("en-GB", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+import { formatDate, formatTime } from "../utils/DateUtils";
 
 export default function DetailScreen({ route }: any) {
   const carService = useContext(CarServiceContext);
