@@ -348,8 +348,8 @@ export default class APICarService implements CarService {
 
         const bookings: Booking[] = data.map(booking => ({
           id: booking.id,
-          from: booking.startDate,
-          to: booking.endDate,
+          from: new Date(booking.startDate),
+          to: new Date(booking.endDate),
           car: this.mapCar(booking.car)
         }));
 

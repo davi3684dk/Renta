@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { CarServiceContext } from "../services/CarServiceContext";
 import { AuthProvider } from "../contexts/AuthContext";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Booking } from "../types/Car";
 import CarCard from "../components/CarCard";
 import { useNavigation } from "@react-navigation/native";
@@ -23,9 +23,21 @@ export default function MyBookingsScreen() {
     navigation.navigate("DetailScreen", { car: booking.car });
   };
   const removeBooking = (booking: Booking) => {
-    carservice?.removeBooking(booking.id).then(() => {
-      setBookings(bookings.filter(b => b.id !== booking.id));
-    });
+    Alert.alert(
+      "Remove Booking",
+      "Are you sure you want to cancel the booking?",
+      [
+        {
+          text: "Cancel Booking",
+          onPress: () => {
+            carservice?.removeBooking(booking.id).then(() => {
+              setBookings(bookings.filter(b => b.id !== booking.id));
+            });
+          },
+        },
+        { text: "Go Back" },
+      ]
+    );
   }
   
   return (
@@ -34,10 +46,10 @@ export default function MyBookingsScreen() {
             data={bookings}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <View>
-                <CarCard car={item.car} managing={true} onPress={(car) => handleBookingPress(item)}/>
-                <View style={{flexDirection: "column"}}>
-                  <View>
+              <View style={styles.bookingCard}>
+                <CarCard car={item.car} onPress={(car) => handleBookingPress(item)}/>
+                <View style={{flexDirection: "row"}}>
+                  <View style={styles.date}>
                     <Text style={styles.label}>Pick-up</Text>
                     <View style={styles.row}>
                       <View
@@ -52,7 +64,7 @@ export default function MyBookingsScreen() {
                       </View>
                     </View>
                   </View>
-                  <View>
+                  <View style={styles.date}>
                     <Text style={styles.label}>Drop-off</Text>
                     <View style={styles.row}>
                       <View
@@ -70,7 +82,7 @@ export default function MyBookingsScreen() {
                 </View>
 
                 <TouchableOpacity style={styles.button} onPress={() => removeBooking(item)}>
-                  <Text style={styles.buttonText}>Remove booking</Text>
+                  <Text style={styles.buttonText}>Cancel booking</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -81,12 +93,26 @@ export default function MyBookingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  bookingCard: {
+    borderWidth: 1,
+    borderColor: "lightgrey",
+    padding: 10,
+    borderRadius: 10,
+    boxShadow: "0px 0px 5px rgba(0,0,0,0.3)"
+  },
+  date: {
+    flex: 1,
+    justifyContent: "space-between",
+    transform: [{
+      scale: 0.8
+    }]
+  },
   listContainer: {
     padding: 16,
-    gap: 10,
+    gap: 50,
   },
   button: {
-    backgroundColor: "#009de0",
+    backgroundColor: "#e03f00ff",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
@@ -104,7 +130,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   chip: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#d4d4d4ff",
     borderRadius: 20,
     paddingVertical: 6,
     paddingHorizontal: 14,

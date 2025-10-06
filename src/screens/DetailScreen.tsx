@@ -11,7 +11,7 @@ export default function DetailScreen({ route }: any) {
   const carService = useContext(CarServiceContext);
   const navigation = useNavigation<any>();
 
-  const { car, fromDate, toDate }: {car: Car, fromDate: Date, toDate: Date} = route.params;
+  const { car, fromDate, toDate }: {car: Car, fromDate?: Date, toDate?: Date} = route.params;
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -20,6 +20,9 @@ export default function DetailScreen({ route }: any) {
   }
 
   function confirmBooking(): void {
+    if (!fromDate || !toDate)
+      return;
+
     carService?.addBooking(car.id, fromDate, toDate);
     navigation.popToTop();
   }
@@ -31,6 +34,7 @@ export default function DetailScreen({ route }: any) {
           {<CarDetail car={car as Car} />}
         </ScrollView>
 
+        {fromDate && toDate && <>
         <View style={styles.footer}>
           <Text style={styles.priceText}>{car.pricePerKm} kr. / km</Text>
           <TouchableOpacity 
@@ -40,6 +44,7 @@ export default function DetailScreen({ route }: any) {
           </TouchableOpacity>
         </View>
 
+        
         <Modal
           visible={modalVisible}
           animationType="fade"
@@ -84,7 +89,7 @@ export default function DetailScreen({ route }: any) {
             </View>
           </View>
 
-        </Modal>
+        </Modal> </>}
       </SafeAreaView>
     </SafeAreaProvider>
   );
