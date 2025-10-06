@@ -336,6 +336,29 @@ export default class APICarService implements CarService {
     }
   }
 
+  async getMyBookings(): Promise<Booking[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await this.fetchWithAuth(`/car-booking/my-bookings`);
+
+        if (!data || !Array.isArray(data)) {
+          reject("Invalid data format received");
+          return [];
+        }
+
+        const bookings: Booking[] = data.map(booking => ({
+          id: booking.id,
+          from: booking.startDate,
+          to: booking.endDate 
+        }));
+
+        resolve(bookings);
+      } catch (e) {
+        reject(e)
+      }
+    });
+  }
+
   async addBooking(carId: string, fromDate: Date, toDate: Date): Promise<void> {
     try {
       await this.fetchWithAuth(`/car-bookings`, {
@@ -352,9 +375,9 @@ export default class APICarService implements CarService {
     }
   }
 
-  async removeBooking(bookingId: string): Promise<void> {
+  async removeBooking(bookingId: number): Promise<void> {
     try {
-      await this.fetchWithAuth(`/cars/bookings/${bookingId}`, {
+      await this.fetchWithAuth(`/car-booking/${bookingId}`, {
         method: "DELETE",
       });
     } catch (error) {

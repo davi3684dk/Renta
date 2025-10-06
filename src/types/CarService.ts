@@ -1,4 +1,4 @@
-import { Car } from "./Car";
+import { Booking, Car } from "./Car";
 
 export default interface CarService {
   getCars(filter?: CarFilter, sort?: CarSort): Promise<Car[]>;
@@ -19,7 +19,9 @@ export default interface CarService {
 
   addBooking(carId: string, fromDate: Date, toDate: Date): Promise<void>;
 
-  removeBooking(bookingId: string): Promise<void>;
+  removeBooking(bookingId: number): Promise<void>;
+
+  getMyBookings(): Promise<Booking[]>;
 
   getReviewDistribution(userId: number): Promise<Record<string, number>>;
 }
