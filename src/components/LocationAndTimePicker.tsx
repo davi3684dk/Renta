@@ -10,6 +10,8 @@ import {
   StyleSheet,
 } from "react-native";
 import GooglePlacesTextInput from "react-native-google-places-textinput";
+import { Calendar, CalendarList, Agenda } from "react-native-calendars";
+import { DateData, MarkedDates } from "react-native-calendars/src/types";
 
 const hour = 1000 * 60 * 60;
 
@@ -46,6 +48,94 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
   const openPicker = (type: "pickup" | "dropoff", mode: "date" | "time") => {
     setShowPicker({ type, mode });
   };
+
+  function getDateString(date: Date) {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    let dateString = `${year}-`;
+    if (month < 10) {
+      dateString += `0${month}-`;
+    } else {
+      dateString += `${month}-`;
+    }
+    if (day < 10) {
+      dateString += `0${day}`;
+    } else {
+      dateString += day;
+    }
+
+    return dateString;
+  }
+
+  const day = 1000 * 60 * 60 * 24;
+
+  const [marked, setMarkedDays] = useState<MarkedDates>({});
+
+  const [selectedPeriod, setSelectedPeriod] = useState<{
+    from?: DateData;
+    to?: DateData;
+  }>({});
+
+  function handleCalendarPress(date: DateData): void {
+    setSelectedPeriod(prev => {
+      const { from, to } = prev;
+
+      if (!from && !to) {
+        return { from: date, to: date };
+      }
+
+      if (from && to && from.timestamp === to.timestamp) {
+        if (date.timestamp < from.timestamp) {
+          return { from: date, to: from };
+        } else {
+          return { from, to: date };
+        }
+      }
+
+      return { from: date, to: date };
+    });
+  }
+
+  function updateCalendarMarkings() {
+    const markedDates: MarkedDates = {};
+
+    if (selectedPeriod.from && selectedPeriod.to) {
+      const color = "#6baafdff";
+
+      markedDates[selectedPeriod.from.dateString] = {
+        color: color,
+        selected: true,
+        startingDay: true,
+      };
+
+      let date = new Date(selectedPeriod.from.timestamp + day);
+      while (date.getTime() < selectedPeriod.to.timestamp) {
+        markedDates[getDateString(date)] = {
+          color: color,
+          selected: true,
+        };
+
+        date = new Date(date.getTime() + day);
+      }
+
+      markedDates[selectedPeriod.to.dateString] = {
+        color: color,
+        selected: true,
+        endingDay: true,
+        startingDay:
+          selectedPeriod.from.timestamp === selectedPeriod.to.timestamp,
+      };
+    }
+
+    setMarkedDays(markedDates);
+  }
+
+  useEffect(() => {
+    props.onDateChange( new Date(selectedPeriod.from?.timestamp || props.pickupDate.getTime()), new Date(selectedPeriod.to?.timestamp || props.dropOffDate.getTime()));
+    updateCalendarMarkings();
+  }, [selectedPeriod]);
 
   const onChange = (e: DateTimePickerEvent, selectedDate?: Date) => {
     if (!selectedDate || e.type === "dismissed") {
@@ -125,37 +215,15 @@ export default function LocationAndTimeComponent(props: LocationAndTimeProps) {
         value={props.location}
       />
 
-      <Text style={styles.label}>Pick-up</Text>
-      <View style={styles.row}>
-        <TouchableOpacity
-          style={styles.chip}
-          onPress={() => openPicker("pickup", "date")}
-        >
-          <Text>{formatDate(props.pickupDate)}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.chip}
-          onPress={() => openPicker("pickup", "time")}
-        >
-          <Text>{formatTime(props.pickupDate)}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.label}>Drop-off</Text>
-      <View style={styles.row}>
-        <TouchableOpacity
-          style={styles.chip}
-          onPress={() => openPicker("dropoff", "date")}
-        >
-          <Text>{formatDate(props.dropOffDate)}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.chip}
-          onPress={() => openPicker("dropoff", "time")}
-        >
-          <Text>{formatTime(props.dropOffDate)}</Text>
-        </TouchableOpacity>
-      </View>
+      <Calendar
+        markedDates={marked}
+        markingType="period"
+        theme={{
+          todayTextColor: "#00adf5",
+          todayBackgroundColor: "#00acf55d",
+        }}
+        onDayPress={handleCalendarPress}
+      ></Calendar>
 
       {showPicker.type && (
         <DateTimePicker

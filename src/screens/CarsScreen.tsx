@@ -189,12 +189,10 @@ export default function CarsScreen({ route }: any) {
           <Text style={styles.dateText}>
             {(filters.fromDate as Date).toLocaleString("en-GB", {
               dateStyle: "medium",
-              timeStyle: "short",
             })}{" "}
             -{" "}
             {(filters.toDate as Date).toLocaleString("en-GB", {
               dateStyle: "medium",
-              timeStyle: "short",
             })}
           </Text>
         </TouchableOpacity>
