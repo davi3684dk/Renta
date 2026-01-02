@@ -140,10 +140,10 @@ function Footer() {
       <TouchableOpacity style={styles.footerBtn} onPress={() => 
       {
         //Clear navigation stack to prevent going back to previous screens
-        navigation.reset({index: 0, routes: [{ name: "myRentedCars" }]});
+        navigation.reset({index: 0, routes: [{ name: "MyBookingsScreen" }]});
       }}>
-        <FontAwesome5 name="car" size={24} color={getColor("myRentedCars")} />
-        <Text style={[styles.footerBtnText, { color: getColor("myRentedCars") }]}>My Cars</Text>
+        <FontAwesome5 name="car" size={24} color={getColor("MyBookingsScreen")} />
+        <Text style={[styles.footerBtnText, { color: getColor("MyBookingsScreen") }]}>My Cars</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.footerBtn} onPress={() => {
@@ -156,10 +156,10 @@ function Footer() {
 
       <TouchableOpacity style={styles.footerBtn} onPress={() => {
         //Clear navigation stack to prevent going back to previous screens
-        navigation.reset({index: 0, routes: [{ name: "addCar" }]});
+        navigation.reset({index: 0, routes: [{ name: "myRentedCars" }]});
       }}>
-        <FontAwesome5 name="plus" size={24} color={getColor("addCar")} />
-        <Text style={[styles.footerBtnText, { color: getColor("addCar") }]}>Rent</Text>
+        <FontAwesome5 name="plus" size={24} color={getColor("myRentedCars")} />
+        <Text style={[styles.footerBtnText, { color: getColor("myRentedCars") }]}>Rent</Text>
       </TouchableOpacity>
     </View>
   );
