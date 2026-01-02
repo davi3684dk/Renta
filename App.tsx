@@ -132,7 +132,7 @@ function Footer() {
     footerBtnText: { color: "black", fontWeight: "bold" },
   });
 
-  const getColor = (routeName: string) => currentRoute === routeName ? "blue" : "black";
+  const getColor = (routeName: string) => currentRoute === routeName ? "#009de0" : "black";
 
   return (
     <View style={styles.footer}>
