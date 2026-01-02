@@ -74,7 +74,7 @@ export default function DetailScreen({ route }: any) {
           onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modal}>
             <View style={styles.modalCard}>
-              <Text>Confirm Booking Time</Text>
+              <Text style={styles.label}>Confirm Booking Time</Text>
 
               <Text style={styles.label}>Pick-up</Text>
               <View style={styles.row}>
@@ -106,6 +106,13 @@ export default function DetailScreen({ route }: any) {
 
               <View style={styles.modalButtons}>
                 <TouchableOpacity 
+                  style={[styles.modalButton, styles.cancelButton, isBooking && styles.disabledButton]} 
+                  onPress={() => {setModalVisible(false)}}
+                  disabled={isBooking}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
                   style={[styles.modalButton, styles.confirmButton, isBooking && styles.disabledButton]} 
                   onPress={() => confirmBooking()}
                   disabled={isBooking}
@@ -113,13 +120,6 @@ export default function DetailScreen({ route }: any) {
                   <Text style={styles.confirmButtonText}>
                     {isBooking ? "Booking..." : "Confirm"}
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.modalButton, styles.cancelButton, isBooking && styles.disabledButton]} 
-                  onPress={() => {setModalVisible(false)}}
-                  disabled={isBooking}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -167,7 +167,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#3030308a"
+    backgroundColor: "#3030308a",
+    paddingLeft: 50,
+    paddingRight: 50,
   },
   modalCard: {
     backgroundColor: "white",
