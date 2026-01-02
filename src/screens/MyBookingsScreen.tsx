@@ -6,6 +6,7 @@ import { Booking } from "../types/Car";
 import CarCard from "../components/CarCard";
 import { useNavigation } from "@react-navigation/native";
 import { formatDate, formatTime } from "../utils/DateUtils";
+import CarBookingCard from "../components/CarBookingCard";
 
 export default function MyBookingsScreen() {
     const carservice = useContext(CarServiceContext);
@@ -46,45 +47,11 @@ export default function MyBookingsScreen() {
             data={bookings}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <View style={styles.bookingCard}>
-                <CarCard car={item.car} onPress={(car) => handleBookingPress(item)}/>
-                <View style={{flexDirection: "row"}}>
-                  <View style={styles.date}>
-                    <Text style={styles.label}>Pick-up</Text>
-                    <View style={styles.row}>
-                      <View
-                        style={styles.chip}
-                      >
-                        <Text>{formatDate(item.from)}</Text>
-                      </View>
-                      <View
-                        style={styles.chip}
-                      >
-                        <Text>{formatTime(item.from)}</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <View style={styles.date}>
-                    <Text style={styles.label}>Drop-off</Text>
-                    <View style={styles.row}>
-                      <View
-                        style={styles.chip}
-                      >
-                        <Text>{formatDate(item.to)}</Text>
-                      </View>
-                      <View
-                        style={styles.chip}
-                      >
-                        <Text>{formatTime(item.to)}</Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-
-                <TouchableOpacity style={styles.button} onPress={() => removeBooking(item)}>
-                  <Text style={styles.buttonText}>Cancel booking</Text>
-                </TouchableOpacity>
-              </View>
+                <CarBookingCard 
+                  booking={item} 
+                  onPress={(car) => handleBookingPress(item)}
+                  onRemove={(booking) => removeBooking(booking)}
+                />
             )}
             contentContainerStyle={styles.listContainer}
           />
@@ -109,19 +76,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
-    gap: 50,
-  },
-  button: {
-    backgroundColor: "#e03f00ff",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+    gap: 25,
   },
   label: { fontWeight: "bold", marginTop: 10, marginBottom: 6, alignSelf: "flex-start" },
   row: {
