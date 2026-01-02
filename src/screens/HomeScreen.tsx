@@ -50,25 +50,6 @@ export default function HomeScreen() {
           <Text style={styles.findBtnText}>Find Rental</Text>
         </TouchableOpacity>
       </View>
-
-      <View style={styles.bottom}>
-        <Text style={{ marginBottom: 8 }}>Rent your car</Text>
-        <TouchableOpacity
-          style={styles.circleBtn}
-          onPress={() => navigation.navigate("myRentedCars")}
-        >
-          <Text style={{ color: "white", fontSize: 18 }}>{">"}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.bottom}>
-        <TouchableOpacity
-          style={styles.bookingsButton}
-          onPress={() => navigation.navigate("MyBookingsScreen")}
-        >
-          <Text style={{ color: "white", fontSize: 18 }}>{"View current Bookings"}</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -98,11 +79,17 @@ const styles = StyleSheet.create({
   },
   findBtnText: { color: "white", fontWeight: "bold" },
   bottom: { alignItems: "center", marginTop: 40 },
+  rentBtn: {
+    position: "absolute",
+    alignItems: "center",
+    bottom: 100,
+    right: 30,
+  },
   circleBtn: {
     backgroundColor: "#009de0",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     justifyContent: "center",
     alignItems: "center",
   },

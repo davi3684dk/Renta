@@ -1,4 +1,4 @@
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { NavigationContainer, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "./src/screens/HomeScreen";
 import CarsScreen from "./src/screens/CarsScreen";
@@ -8,7 +8,7 @@ import SettingsScreen from "./src/screens/SettingsScreen";
 import AppPermissions from "./src/screens/AppPermissionsScreen";
 import Customization from "./src/screens/CustomizationScreen";
 import ProfileBilling from "./src/screens/ProfileBillingScreen";
-import { TouchableOpacity, ActivityIndicator, View } from "react-native";
+import { TouchableOpacity, ActivityIndicator, View, Text, StyleSheet } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import AddCarScreen from "./src/screens/AddCarScreen";
 import ManageCarScreen from "./src/screens/ManageCarScreen";
@@ -18,6 +18,9 @@ import RegisterScreen from "./src/screens/RegisterScreen";
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
 import DetailScreen from "./src/screens/DetailScreen";
 import MyBookingsScreen from "./src/screens/MyBookingsScreen";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { useCallback, useState } from "react";
 
 const Stack = createStackNavigator();
 
@@ -89,10 +92,75 @@ function AppContent() {
   const { handleTokenExpiration } = useAuth();
 
   return (
-    <CarServiceContext.Provider value={new APICarService(handleTokenExpiration)}>
-      <NavigationContainer>
-        <Navigation />
-      </NavigationContainer>
-    </CarServiceContext.Provider>
+      <CarServiceContext.Provider value={new APICarService(handleTokenExpiration)}>
+        <SafeAreaView style={{flex: 1}}>
+          <NavigationContainer>
+            <Navigation />
+            <Footer />
+          </NavigationContainer>
+        </SafeAreaView>
+      </CarServiceContext.Provider>
   );
 }
+
+function Footer() {
+  const navigation = useNavigation<any>();
+  const [currentRoute, setCurrentRoute] = useState<string>("");
+  
+  navigation.addListener("state", () => {
+    const state = navigation.getState();
+    setCurrentRoute(state.routes[state.index].name);
+  });
+
+  const styles = StyleSheet.create({
+    footer: {
+      borderTopWidth: 1,
+      borderColor: "#e0e0e0",
+      backgroundColor: "#f9f9f9",
+      alignContent: "center",
+      justifyContent: "space-around",
+      flexDirection: "row",
+    },
+    footerBtn: {
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 8,
+      width: 80,
+      height: 80,
+    },
+    footerBtnText: { color: "black", fontWeight: "bold" },
+  });
+
+  const getColor = (routeName: string) => currentRoute === routeName ? "blue" : "black";
+
+  return (
+    <View style={styles.footer}>
+      <TouchableOpacity style={styles.footerBtn} onPress={() => 
+      {
+        //Clear navigation stack to prevent going back to previous screens
+        navigation.reset({index: 0, routes: [{ name: "myRentedCars" }]});
+      }}>
+        <FontAwesome5 name="car" size={24} color={getColor("myRentedCars")} />
+        <Text style={[styles.footerBtnText, { color: getColor("myRentedCars") }]}>My Cars</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.footerBtn} onPress={() => {
+        //Clear navigation stack to prevent going back to previous screens
+        navigation.reset({index: 0, routes: [{ name: "home" }]});
+      }}>
+        <FontAwesome5 name="home" size={24} color={getColor("home")} />
+        <Text style={[styles.footerBtnText, { color: getColor("home") }]}>Home</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.footerBtn} onPress={() => {
+        //Clear navigation stack to prevent going back to previous screens
+        navigation.reset({index: 0, routes: [{ name: "addCar" }]});
+      }}>
+        <FontAwesome5 name="plus" size={24} color={getColor("addCar")} />
+        <Text style={[styles.footerBtnText, { color: getColor("addCar") }]}>Rent</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
