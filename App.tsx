@@ -109,7 +109,8 @@ function Footer() {
   
   navigation.addListener("state", () => {
     const state = navigation.getState();
-    setCurrentRoute(state.routes[state.index].name);
+    if (state && state.routes && state.index >= 0)
+      setCurrentRoute(state.routes[state.index].name);
   });
 
   const styles = StyleSheet.create({
