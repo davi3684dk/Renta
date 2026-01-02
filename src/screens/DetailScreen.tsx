@@ -14,6 +14,7 @@ export default function DetailScreen({ route }: any) {
   const { car, fromDate, toDate }: {car: Car, fromDate?: Date, toDate?: Date} = route.params;
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
 
   function handleRentPressed() {
     setModalVisible(true);   
@@ -23,10 +24,29 @@ export default function DetailScreen({ route }: any) {
     if (!fromDate || !toDate)
       return;
 
-    carService?.addBooking(car.id, fromDate, toDate).then(() => {
-      navigation.popToTop();
-      navigation.navigate("MyBookingsScreen");
-    });
+    setIsBooking(true);
+    carService?.addBooking(car.id, fromDate, toDate)
+      .then(() => {
+        setModalVisible(false);
+        setIsBooking(false);
+        Alert.alert(
+          "Booking Confirmed!",
+          `Your booking for ${car.make} ${car.model} has been confirmed.`,
+          [
+            {
+              text: "View My Bookings",
+              onPress: () => {
+                navigation.popToTop();
+                navigation.navigate("MyBookingsScreen");
+              }
+            }
+          ]
+        );
+      })
+      .catch((error) => {
+        setIsBooking(false);
+        Alert.alert("Booking Failed", error.message || "Failed to create booking. Please try again.");
+      });
   }
 
   return (
@@ -85,8 +105,22 @@ export default function DetailScreen({ route }: any) {
               </View>
 
               <View style={styles.modalButtons}>
-                <Button title="Confirm" onPress={() => confirmBooking()}></Button>
-                <Button title="Cancel" onPress={() => {setModalVisible(false)}}></Button>
+                <TouchableOpacity 
+                  style={[styles.modalButton, styles.confirmButton, isBooking && styles.disabledButton]} 
+                  onPress={() => confirmBooking()}
+                  disabled={isBooking}
+                >
+                  <Text style={styles.confirmButtonText}>
+                    {isBooking ? "Booking..." : "Confirm"}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.modalButton, styles.cancelButton, isBooking && styles.disabledButton]} 
+                  onPress={() => {setModalVisible(false)}}
+                  disabled={isBooking}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -157,6 +191,35 @@ const styles = StyleSheet.create({
   },
   modalButtons: {
     flexDirection: "row",
-    gap: 20
-  }
+    gap: 12,
+    marginTop: 20,
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  confirmButton: {
+    backgroundColor: "#29c924ff",
+  },
+  confirmButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  cancelButton: {
+    backgroundColor: "#f0f0f0",
+  },
+  cancelButtonText: {
+    color: "#333",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
 });
