@@ -83,11 +83,6 @@ export default function DetailScreen({ route }: any) {
                 >
                   <Text>{formatDate(fromDate)}</Text>
                 </View>
-                <View
-                  style={styles.chip}
-                >
-                  <Text>{formatTime(fromDate)}</Text>
-                </View>
               </View>
 
               <Text style={styles.label}>Drop-off</Text>
@@ -96,11 +91,6 @@ export default function DetailScreen({ route }: any) {
                   style={styles.chip}
                 >
                   <Text>{formatDate(toDate)}</Text>
-                </View>
-                <View
-                  style={styles.chip}
-                >
-                  <Text>{formatTime(toDate)}</Text>
                 </View>
               </View>
 

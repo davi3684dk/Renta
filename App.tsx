@@ -20,7 +20,7 @@ import DetailScreen from "./src/screens/DetailScreen";
 import MyBookingsScreen from "./src/screens/MyBookingsScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const Stack = createStackNavigator();
 
@@ -37,32 +37,35 @@ function MyStack() {
   const navigation = useNavigation<any>();
 
   return (
-    <Stack.Navigator
-      initialRouteName="home"
-      screenOptions={{
-        headerTitleAlign: "center",
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
-        headerRight: () => (
-          <TouchableOpacity style={{ paddingRight: 20 }} onPress={() => navigation.navigate("settings")}>
-            <Entypo name="cog" size={24} color="black" />
-          </TouchableOpacity>
-        ),
-      }}
-    >
-      <Stack.Screen name="home" component={HomeScreen} options={{ headerTitle: "Home" }} />
-      <Stack.Screen name="cars" component={CarsScreen} options={{ headerTitle: "Find Cars" }} />
-      <Stack.Screen name="myRentedCars" component={MyRentedCarsScreen} options={{ headerTitle: "My Cars" }} />
-      <Stack.Screen name="addCar" component={AddCarScreen} options={{ headerTitle: "Add Car" }} />
-      <Stack.Screen name="manageCar" component={ManageCarScreen} options={{ headerTitle: "Manage Car" }} />
-      <Stack.Screen name="settings" component={SettingsScreen} options={{ headerTitle: "Settings" }} />
-      <Stack.Screen name="permission" component={AppPermissions} options={{ headerTitle: "App Permissions" }} />
-      <Stack.Screen name="customization" component={Customization} options={{ headerTitle: "Sound & Customization" }} />
-      <Stack.Screen name="profilebilling" component={ProfileBilling} options={{ headerTitle: "Profile & Billing" }} />
-      <Stack.Screen name="DetailScreen" component={DetailScreen} options={{ headerTitle: "Car Details" }} />
-      <Stack.Screen name="MyBookingsScreen" component={MyBookingsScreen} options={{ headerTitle: "My Bookings" }} />
-    </Stack.Navigator>
+    <View style={{flex: 1}}>
+      <Stack.Navigator
+        initialRouteName="home"
+        screenOptions={{
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+          headerRight: () => (
+            <TouchableOpacity style={{ paddingRight: 20 }} onPress={() => navigation.navigate("settings")}>
+              <Entypo name="cog" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+        }}
+      >
+        <Stack.Screen name="home" component={HomeScreen} options={{ headerTitle: "Home" }} />
+        <Stack.Screen name="cars" component={CarsScreen} options={{ headerTitle: "Find Cars" }} />
+        <Stack.Screen name="myRentedCars" component={MyRentedCarsScreen} options={{ headerTitle: "My Cars" }} />
+        <Stack.Screen name="addCar" component={AddCarScreen} options={{ headerTitle: "Add Car" }} />
+        <Stack.Screen name="manageCar" component={ManageCarScreen} options={{ headerTitle: "Manage Car" }} />
+        <Stack.Screen name="settings" component={SettingsScreen} options={{ headerTitle: "Settings" }} />
+        <Stack.Screen name="permission" component={AppPermissions} options={{ headerTitle: "App Permissions" }} />
+        <Stack.Screen name="customization" component={Customization} options={{ headerTitle: "Sound & Customization" }} />
+        <Stack.Screen name="profilebilling" component={ProfileBilling} options={{ headerTitle: "Profile & Billing" }} />
+        <Stack.Screen name="DetailScreen" component={DetailScreen} options={{ headerTitle: "Car Details" }} />
+        <Stack.Screen name="MyBookingsScreen" component={MyBookingsScreen} options={{ headerTitle: "My Bookings" }} />
+      </Stack.Navigator>
+      <Footer />
+    </View>
   );
 }
 
@@ -96,7 +99,6 @@ function AppContent() {
         <SafeAreaView style={{flex: 1}}>
           <NavigationContainer>
             <Navigation />
-            <Footer />
           </NavigationContainer>
         </SafeAreaView>
       </CarServiceContext.Provider>
@@ -112,6 +114,12 @@ function Footer() {
     if (state && state.routes && state.index >= 0)
       setCurrentRoute(state.routes[state.index].name);
   });
+
+  useEffect(() => {
+    const state = navigation.getState();
+    if (state && state.routes && state.index >= 0)
+      setCurrentRoute(state.routes[state.index].name);
+  }, [navigation]);
 
   const styles = StyleSheet.create({
     footer: {
